@@ -10,16 +10,16 @@
 body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden;user-select:none}
 
 /* TOOLBAR */
-.toolbar{display:flex;align-items:center;gap:2px;padding:4px 8px;background:linear-gradient(180deg,#1a1a2e,#151528);border-bottom:1px solid var(--border);flex-wrap:wrap;min-height:40px}
+.toolbar{position:relative;z-index:100;display:flex;align-items:center;gap:2px;padding:4px 8px;background:linear-gradient(180deg,#1a1a2e,#151528);border-bottom:1px solid var(--border);flex-wrap:wrap;min-height:40px}
 .tg{display:flex;align-items:center;gap:2px;padding:0 6px;border-right:1px solid #1e1e36}.tg:last-child{border:none}
 .tb{width:32px;height:32px;border:2px solid transparent;border-radius:6px;background:var(--bg4);color:#888;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;position:relative}
 .tb:hover{background:#3a3a60;border-color:#5555aa;color:#eee;transform:translateY(-1px)}
 .tb.active{background:var(--accent);border-color:var(--accent2);color:#fff;box-shadow:0 2px 12px rgba(124,58,237,.4)}
 
 /* TOOLTIPS */
-.tb .tp{position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#0a0a14;color:#ccc;padding:6px 10px;border-radius:6px;font-size:9px;white-space:nowrap;z-index:999;pointer-events:none;opacity:0;transition:opacity .15s;border:1px solid #2a2a4a;box-shadow:0 4px 16px rgba(0,0,0,.5);line-height:1.4}
+.tb .tp{position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#0a0a14;color:#ccc;padding:6px 10px;border-radius:6px;font-size:9px;white-space:nowrap;z-index:999;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .15s, visibility .15s;border:1px solid #2a2a4a;box-shadow:0 4px 16px rgba(0,0,0,.5);line-height:1.4;text-align:left}
 .tb .tp::before{content:'';position:absolute;bottom:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-bottom-color:#2a2a4a}
-.tb:hover .tp {opacity:1} /* Tooltip hover fix */
+.tb:hover .tp {opacity:1;visibility:visible}
 .tp b{color:var(--accent2)}.tp kbd{background:var(--bg4);padding:1px 4px;border-radius:3px;font-size:8px;color:#999;font-family:monospace}
 
 .toolbar label{font-size:10px;display:flex;align-items:center;gap:3px;color:#666}
@@ -41,7 +41,7 @@ body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);co
 .mm button.off{background:transparent;color:#666}
 
 /* MAIN */
-.main{display:flex;flex:1;overflow:hidden;min-height:0}
+.main{display:flex;flex:1;overflow:hidden;min-height:0;position:relative;z-index:10}
 .cwrap{flex:1;display:flex;align-items:center;justify-content:center;background:var(--bg);overflow:auto;padding:12px;position:relative}
 .cbox{position:relative;box-shadow:0 0 40px rgba(0,0,0,.4),0 0 0 1px rgba(255,255,255,.03);border-radius:2px;flex-shrink:0}
 canvas#cv{display:block;border-radius:2px}
@@ -98,7 +98,7 @@ canvas#cv{display:block;border-radius:2px}
 .resizer::after{content:'⋯';color:#555;font-size:10px;letter-spacing:2px}
 
 /* CODE */
-.codesec{background:var(--bg2);display:flex;flex-direction:column;flex-shrink:0;min-height:36px;overflow:hidden}
+.codesec{background:var(--bg2);display:flex;flex-direction:column;flex-shrink:0;min-height:36px;overflow:hidden;position:relative;z-index:20}
 .codehd{display:flex;align-items:center;justify-content:space-between;padding:4px 12px;background:var(--bg);border-bottom:1px solid var(--border);flex-shrink:0}
 .codehd span{font-size:11px;font-weight:600;color:var(--accent)}
 .codehd button{height:26px;padding:0 10px;border:none;border-radius:5px;background:var(--accent);color:#fff;font-size:10px;cursor:pointer;font-weight:600;transition:all .15s}
@@ -115,20 +115,21 @@ canvas#cv{display:block;border-radius:2px}
 
 <div class="toolbar">
  <div class="tg">
-  <button class="tb active" data-tool="select"><span>↖</span><div class="tp"><b>Select</b><br>Click to select, drag to move, grab anchor points to resize<br><kbd>V</kbd></div></button>
-  <button class="tb" data-tool="rect"><span>▭</span><div class="tp"><b>Rectangle</b><br>Drag to draw. Shift constrains ratio<br><kbd>R</kbd></div></button>
-  <button class="tb" data-tool="square"><span>□</span><div class="tp"><b>Square</b><br>Always equal W&H<br><kbd>S</kbd></div></button>
-  <button class="tb" data-tool="ellipse"><span>⬮</span><div class="tp"><b>Ellipse</b><br>Independent W&H oval<br><kbd>E</kbd></div></button>
-  <button class="tb" data-tool="circle"><span>◯</span><div class="tp"><b>Circle</b><br>Perfect circle by diameter<br><kbd>C</kbd></div></button>
-  <button class="tb" data-tool="triangle"><span>△</span><div class="tp"><b>Triangle</b><br>Drag to create, then reshape vertices<br><kbd>T</kbd></div></button>
-  <button class="tb" data-tool="line"><span>╱</span><div class="tp"><b>Line</b><br>Draw between two endpoints<br><kbd>L</kbd></div></button>
-  <button class="tb" data-tool="arc"><span>◠</span><div class="tp"><b>Arc</b><br>Partial ellipse with start/end angle<br><kbd>A</kbd></div></button>
-  <button class="tb" data-tool="point"><span>•</span><div class="tp"><b>Point</b><br>Single point, size = strokeWeight<br><kbd>.</kbd></div></button>
-  <button class="tb" data-tool="polygon"><span>⬡</span><div class="tp"><b>Polygon</b><br>N-sided regular polygon (3–30)<br><kbd>P</kbd></div></button>
-  <button class="tb" data-tool="star"><span>★</span><div class="tp"><b>Star</b><br>N-pointed star with inner/outer radius<br><kbd>*</kbd></div></button>
-  <button class="tb" data-tool="pen"><span>✒</span><div class="tp"><b>Bezier Pen</b><br>Click corners, drag for smooth curves.<br>Click start to close.<br><kbd>N</kbd></div></button>
-  <button class="tb" data-tool="brush"><span>🖌</span><div class="tp"><b>Brush</b><br>Freehand drawing with circle or square stamps.<br><kbd>B</kbd></div></button>
-  <button class="tb" data-tool="pixel"><span>▦</span><div class="tp"><b>Pixel Art</b><br>Paint grid cells. Right-click erases<br><kbd>X</kbd></div></button>
+  <button class="tb active" data-tool="select"><span>↖</span><div class="tp"><b>Select</b><br>Click to select, drag to move, grab anchor points to resize.<br><kbd>V</kbd></div></button>
+  <button class="tb" data-tool="rect"><span>▭</span><div class="tp"><b>Rectangle</b><br>Drag to draw. Shift constrains ratio.<br><kbd>R</kbd></div></button>
+  <button class="tb" data-tool="square"><span>□</span><div class="tp"><b>Square</b><br>Always equal Width & Height.<br><kbd>S</kbd></div></button>
+  <button class="tb" data-tool="ellipse"><span>⬮</span><div class="tp"><b>Ellipse</b><br>Independent Width & Height oval.<br><kbd>E</kbd></div></button>
+  <button class="tb" data-tool="circle"><span>◯</span><div class="tp"><b>Circle</b><br>Perfect circle by diameter.<br><kbd>C</kbd></div></button>
+  <button class="tb" data-tool="triangle"><span>△</span><div class="tp"><b>Triangle</b><br>Drag to create, then reshape vertices.<br><kbd>T</kbd></div></button>
+  <button class="tb" data-tool="line"><span>╱</span><div class="tp"><b>Line</b><br>Draw between two endpoints.<br><kbd>L</kbd></div></button>
+  <button class="tb" data-tool="arc"><span>◠</span><div class="tp"><b>Arc</b><br>Partial ellipse with start/end angle.<br><kbd>A</kbd></div></button>
+  <button class="tb" data-tool="point"><span>•</span><div class="tp"><b>Point</b><br>Single point, size = strokeWeight.<br><kbd>.</kbd></div></button>
+  <button class="tb" data-tool="polygon"><span>⬡</span><div class="tp"><b>Polygon</b><br>N-sided regular polygon (3–30).<br><kbd>P</kbd></div></button>
+  <button class="tb" data-tool="star"><span>★</span><div class="tp"><b>Star</b><br>N-pointed star with inner/outer radius.<br><kbd>*</kbd></div></button>
+  <button class="tb" data-tool="pen"><span>✒</span><div class="tp"><b>Bezier Pen</b><br>Click corners, drag for smooth curves.<br>Click start point to close shape.<br><kbd>N</kbd></div></button>
+  <button class="tb" data-tool="linepen"><span>✏</span><div class="tp"><b>Line Pen</b><br>Classic straight-line vertex tool.<br>Click start to close or dbl-click.<br><kbd>K</kbd></div></button>
+  <button class="tb" data-tool="brush"><span>🖌</span><div class="tp"><b>Brush</b><br>Freehand drawing with circle/square stamps.<br><kbd>B</kbd></div></button>
+  <button class="tb" data-tool="pixel"><span>▦</span><div class="tp"><b>Pixel Art</b><br>Paint grid cells. Right-click erases.<br><kbd>X</kbd></div></button>
  </div>
  <div class="tg">
   <label>Fill<input type="color" id="dFill" value="#4a90d9"></label>
@@ -152,7 +153,7 @@ canvas#cv{display:block;border-radius:2px}
   <label class="chk"><input type="checkbox" id="oGrad">Grad</label>
  </div>
  <div class="tg">
-  <span style="font-size:9px;color:#444">Color:</span>
+  <span style="font-size:9px;color:#666">Color:</span>
   <div class="mm" id="mm"><button class="on" data-m="rgb">RGB</button><button class="off" data-m="hsl">HSL</button></div>
  </div>
  <div class="tg">
@@ -215,8 +216,8 @@ let shapes=[],selId=null,hovPt=null,tool='select';
 let CW=800,CH=500,bgColor='#f0f0f0',uid=1,updUI=false;
 let snapOn=true,showGrid=true,showPts=true,gradGlobal=false,colorMode='rgb';
 let gridSz=50,mode='idle',dragPtI=-1,startMX,startMY,dragOX,dragOY,dragOrig=null;
-let penPts=[],penDrag=null,penPrev=null; // bezier pen
-let brushActive=false; // brush tool state
+let penPts=[],penDrag=null,penPrev=null,penClosing=false; // bezier pen
+let linePenPts=[]; // line pen
 let undoStack=[],redoStack=[],snapGuides={v:[],h:[]};
 let tplImgs=[],selImgI=-1,imgDrag=null,pixelLayer=null,pixelErase=false,pxHov=null;
 const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
@@ -390,7 +391,11 @@ function render(){
   // Bezier Pen preview
   if(mode==='pen'&&penPts.length>0){
     ctx.save();ctx.strokeStyle='#7c3aed';ctx.lineWidth=1.5;ctx.setLineDash([5,5]);
-    if(penPrev){const lp=penPts[penPts.length-1];ctx.beginPath();ctx.moveTo(lp.x,lp.y);if(lp.cx2!=null)ctx.bezierCurveTo(lp.cx2,lp.cy2,penPrev[0],penPrev[1],penPrev[0],penPrev[1]);else ctx.lineTo(penPrev[0],penPrev[1]);ctx.stroke();if(penPts.length>=3&&dst(penPrev[0],penPrev[1],penPts[0].x,penPts[0].y)<15){ctx.strokeStyle='#2f5';ctx.setLineDash([]);ctx.beginPath();ctx.arc(penPts[0].x,penPts[0].y,8,0,Math.PI*2);ctx.stroke();}}
+    if(penPrev){
+      const lp=penPts[penPts.length-1];ctx.beginPath();ctx.moveTo(lp.x,lp.y);
+      if(lp.cx2!=null)ctx.bezierCurveTo(lp.cx2,lp.cy2,penPrev[0],penPrev[1],penPrev[0],penPrev[1]);else ctx.lineTo(penPrev[0],penPrev[1]);ctx.stroke();
+      if(penPts.length>=3&&dst(penPrev[0],penPrev[1],penPts[0].x,penPts[0].y)<15){ctx.strokeStyle='#2f5';ctx.setLineDash([]);ctx.beginPath();ctx.arc(penPts[0].x,penPts[0].y,8,0,Math.PI*2);ctx.stroke();}
+    }
     ctx.setLineDash([]);penPts.forEach((p,i)=>{ctx.beginPath();ctx.arc(p.x,p.y,4,0,Math.PI*2);ctx.fillStyle=i===0?'#2f5':'#7c3aed';ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke();if(p.cx2!=null){ctx.strokeStyle='#7c3aed55';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.cx2,p.cy2);ctx.stroke();ctx.beginPath();ctx.arc(p.cx2,p.cy2,3,0,Math.PI*2);ctx.fillStyle='#fb3';ctx.fill();}});ctx.restore();
   }
   // Line Pen preview
@@ -398,6 +403,10 @@ function render(){
     ctx.save();ctx.strokeStyle='#7c3aed';ctx.lineWidth=1.5;
     ctx.beginPath();ctx.moveTo(linePenPts[0][0],linePenPts[0][1]);
     for(let i=1;i<linePenPts.length;i++)ctx.lineTo(linePenPts[i][0],linePenPts[i][1]);
+    const last=linePenPts[linePenPts.length-1];
+    if(linePenPts.length>2 && dst(last[0],last[1],linePenPts[0][0],linePenPts[0][1])<15){
+      ctx.fillStyle='#2f5';ctx.beginPath();ctx.arc(linePenPts[0][0],linePenPts[0][1],6,0,Math.PI*2);ctx.fill();
+    }
     ctx.stroke();ctx.restore();
   }
 
@@ -419,7 +428,23 @@ function drawS(s){
     case'line':if(!s.noStroke&&s.strokeWeight){ctx.beginPath();ctx.moveTo(s.verts[0][0],s.verts[0][1]);ctx.lineTo(s.verts[1][0],s.verts[1][1]);ctx.stroke();}break;
     case'polygon':case'star':{const v=s.type==='polygon'?polyV(s.cx,s.cy,s.r,s.sides,s.rotation):starV(s.cx,s.cy,s.oR,s.iR,s.pts,s.rotation);ctx.beginPath();ctx.moveTo(v[0][0],v[0][1]);for(let i=1;i<v.length;i++)ctx.lineTo(v[i][0],v[i][1]);ctx.closePath();if(!s.noFill)ctx.fill();if(!s.noStroke&&s.strokeWeight)ctx.stroke();break;}
     case'path':{
-      if(s.segs&&s.segs.length>0){const sg=s.segs;ctx.beginPath();ctx.moveTo(sg[0].x,sg[0].y);for(let i=1;i<sg.length;i++){const pr=sg[i-1],cu=sg[i];if(pr.cx2!=null&&cu.cx1!=null)ctx.bezierCurveTo(pr.cx2,pr.cy2,cu.cx1,cu.cy1,cu.x,cu.y);else if(pr.cx2!=null)ctx.quadraticCurveTo(pr.cx2,pr.cy2,cu.x,cu.y);else if(cu.cx1!=null)ctx.quadraticCurveTo(cu.cx1,cu.cy1,cu.x,cu.y);else ctx.lineTo(cu.x,cu.y);}if(s.closed){const pr=sg[sg.length-1],cu=sg[0];if(pr.cx2!=null&&cu.cx1!=null)ctx.bezierCurveTo(pr.cx2,pr.cy2,cu.cx1,cu.cy1,cu.x,cu.y);else ctx.closePath();}if(s.closed&&!s.noFill)ctx.fill();if(!s.noStroke&&s.strokeWeight)ctx.stroke();
+      if(s.segs&&s.segs.length>0){
+        const sg=s.segs;ctx.beginPath();ctx.moveTo(sg[0].x,sg[0].y);
+        for(let i=1;i<sg.length;i++){
+          const pr=sg[i-1],cu=sg[i];
+          if(pr.cx2!=null||cu.cx1!=null){
+            const c1x=pr.cx2!=null?pr.cx2:pr.x,c1y=pr.cy2!=null?pr.cy2:pr.y,c2x=cu.cx1!=null?cu.cx1:cu.x,c2y=cu.cy1!=null?cu.cy1:cu.y;
+            ctx.bezierCurveTo(c1x,c1y,c2x,c2y,cu.x,cu.y);
+          }else ctx.lineTo(cu.x,cu.y);
+        }
+        if(s.closed){
+          const pr=sg[sg.length-1],cu=sg[0];
+          if(pr.cx2!=null||cu.cx1!=null){
+            const c1x=pr.cx2!=null?pr.cx2:pr.x,c1y=pr.cy2!=null?pr.cy2:pr.y,c2x=cu.cx1!=null?cu.cx1:cu.x,c2y=cu.cy1!=null?cu.cy1:cu.y;
+            ctx.bezierCurveTo(c1x,c1y,c2x,c2y,cu.x,cu.y);
+          }else ctx.closePath();
+        }
+        if(s.closed&&!s.noFill)ctx.fill();if(!s.noStroke&&s.strokeWeight)ctx.stroke();
       }else if(s.verts&&s.verts.length>0){const v=s.verts;ctx.beginPath();ctx.moveTo(v[0][0],v[0][1]);for(let i=1;i<v.length;i++)ctx.lineTo(v[i][0],v[i][1]);if(s.closed)ctx.closePath();if(s.closed&&!s.noFill)ctx.fill();if(!s.noStroke&&s.strokeWeight)ctx.stroke();}
       break;}
     case'point':ctx.fillStyle=s.stroke;ctx.beginPath();ctx.arc(s.px,s.py,Math.max(s.strokeWeight,2),0,Math.PI*2);ctx.fill();break;
@@ -433,7 +458,7 @@ function drawAnchors(s,isSel){getA(s).forEach((p,i)=>{const isH=hovPt&&hovPt.sId
 
 // ======== MOUSE ========
 function mPos(e){const r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)*(cv.width/r.width),y:(e.clientY-r.top)*(cv.height/r.height)};}
-function applySD(s,dx,dy){if(['polygon','star'].includes(s.type)){s.cx+=dx;s.cy+=dy;}else if(s.type==='circle'||s.type==='point'){s.px+=dx;s.py+=dy;}else if(s.type==='path'){if(s.segs&&s.segs.length)s.segs.forEach(p=>{p.x+=dx;p.y+=dy;if(p.cx1!=null){p.cx1+=dx;p.cy1+=dy;}if(p.cx2!=null){p.cx2+=dx;p.cy2+=dy;}});else if(s.verts)s.verts.forEach(v=>{v[0]+=dx;v[1]+=dy;});}else if(s.verts){s.verts.forEach(v=>{v[0]+=dx;v[1]+=dy;});}else{s.x+=dx;s.y+=dy;}}
+function applySD(s,dx,dy){if(['polygon','star'].includes(s.type)){s.cx+=dx;s.cy+=dy;}else if(s.type==='circle'||s.type==='point'){s.px+=dx;s.py+=dy;}else if(s.type==='path'){if(s.segs&&s.segs.length)s.segs.forEach(p=>{p.x+=dx;p.y+=dy;if(p.cx1!=null){p.cx1+=dx;p.cy1+=dy;}if(p.cx2!=null){p.cx2+=dx;p.cy2+=dy;}});else if(s.verts)s.verts.forEach(v=>{v[0]+=dx;v[1]+=dy;});}else if(s.bpts){s.bpts.forEach(p=>{p[0]+=dx;p[1]+=dy;});}else if(s.verts){s.verts.forEach(v=>{v[0]+=dx;v[1]+=dy;});}else{s.x+=dx;s.y+=dy;}}
 
 cv.addEventListener('mousedown',e=>{
   const m=mPos(e);startMX=m.x;startMY=m.y;
@@ -443,32 +468,27 @@ cv.addEventListener('mousedown',e=>{
   if(tool==='select'&&selImgI>=0){const im=tplImgs[selImgI];if(im&&im.loaded){const cs=[[im.x,im.y],[im.x+im.w,im.y],[im.x+im.w,im.y+im.h],[im.x,im.y+im.h]];for(let ci=0;ci<4;ci++){if(dst(m.x,m.y,cs[ci][0],cs[ci][1])<12){imgDrag={i:selImgI,h:'c',ci,sX:m.x,sY:m.y,oX:im.x,oY:im.y,oW:im.w,oH:im.h};return;}}if(m.x>=im.x&&m.x<=im.x+im.w&&m.y>=im.y&&m.y<=im.y+im.h){imgDrag={i:selImgI,h:'m',sX:m.x,sY:m.y,oX:im.x,oY:im.y};return;}}}
   if(tool==='select'){let sh=false;for(let j=shapes.length-1;j>=0;j--)if(hitB(m.x,m.y,shapes[j])){sh=true;break;}if(!sh)for(let i=tplImgs.length-1;i>=0;i--){const im=tplImgs[i];if(im.visible&&im.loaded&&m.x>=im.x&&m.x<=im.x+im.w&&m.y>=im.y&&m.y<=im.y+im.h){selImgI=i;selId=null;imgDrag={i,h:'m',sX:m.x,sY:m.y,oX:im.x,oY:im.y};updateProps();render();updateImgList();return;}}}
 
-  // Bezier Pen Tool
   if(tool==='pen'&&mode!=='drag-point'&&mode!=='drag-rotate'){
     const ph=hitPts(m.x,m.y);if(ph){selId=ph.sId;selImgI=-1;mode='drag-point';dragPtI=ph.pi;dragOrig=JSON.parse(JSON.stringify(shapes.find(s2=>s2.id===ph.sId)));saveUndo();updateProps();render();return;}
     if(!penPts.length){penPts.push({x:m.x,y:m.y});penDrag=penPts[0];mode='pen';showBadge('Pen: click corners, drag for curves');}
-    else if(penPts.length>=3&&dst(m.x,m.y,penPts[0].x,penPts[0].y)<15){finPen(true);}
+    else if(penPts.length>=3&&dst(m.x,m.y,penPts[0].x,penPts[0].y)<15){penClosing=true;penDrag=penPts[0];}
     else{const pt={x:m.x,y:m.y};penPts.push(pt);penDrag=pt;}
     render();return;
   }
 
-  // Line Pen Tool
   if(tool==='linepen'){
-    if(!linePenPts.length)linePenPts.push([m.x,m.y]);
-    linePenPts.push([m.x,m.y]);
+    if(!linePenPts.length){linePenPts.push([m.x,m.y]);linePenPts.push([m.x,m.y]);}
+    else{
+      if(linePenPts.length>2 && dst(m.x,m.y,linePenPts[0][0],linePenPts[0][1])<15){
+        linePenPts.pop();saveUndo();shapes.push(mk('path',{verts:linePenPts.map(p=>[...p]),closed:true,noFill:false}));linePenPts=[];updateProps();render();return;
+      }
+      linePenPts.push([m.x,m.y]);
+    }
     render();return;
   }
 
-  // Brush Tool
-  if(tool==='brush'){
-    brushActive=true;
-    saveUndo();
-    const s=mk('brush',{bpts:[[m.x,m.y]]});
-    shapes.push(s);selId=s.id;
-    mode='drawing';render();return;
-  }
+  if(tool==='brush'){brushActive=true;saveUndo();const s=mk('brush',{bpts:[[m.x,m.y]]});shapes.push(s);selId=s.id;mode='drawing';render();return;}
 
-  // Anchors (any tool)
   const ph=hitPts(m.x,m.y);if(ph){selId=ph.sId;selImgI=-1;mode='drag-point';dragPtI=ph.pi;dragOrig=JSON.parse(JSON.stringify(shapes.find(s2=>s2.id===ph.sId)));saveUndo();showBadge('Drag: '+ph.pt.n);updateProps();render();return;}
   const sel=getSel();if(sel&&hitRotH(m.x,m.y,sel)){mode='drag-rotate';showBadge('Rotate');return;}
 
@@ -481,8 +501,13 @@ cv.addEventListener('mousemove',e=>{
   const m=mPos(e);pxHov=tool==='pixel'?m:null;
   if(imgDrag){const im=tplImgs[imgDrag.i];const dx=m.x-imgDrag.sX,dy=m.y-imgDrag.sY;const sh=e.shiftKey;if(imgDrag.h==='m'){im.x=imgDrag.oX+dx;im.y=imgDrag.oY+dy;}else{const ci=imgDrag.ci,ar=imgDrag.oW/imgDrag.oH;switch(ci){case 0:if(sh){im.x=imgDrag.oX+dx;im.y=imgDrag.oY+dy;im.w=imgDrag.oW-dx;im.h=imgDrag.oH-dy;}else{im.w=imgDrag.oW-dx;im.h=im.w/ar;im.x=imgDrag.oX+dx;im.y=imgDrag.oY+(imgDrag.oH-im.h);}break;case 1:if(sh){im.w=imgDrag.oW+dx;im.y=imgDrag.oY+dy;im.h=imgDrag.oH-dy;}else{im.w=imgDrag.oW+dx;im.h=im.w/ar;im.y=imgDrag.oY+(imgDrag.oH-im.h);}break;case 2:if(sh){im.w=imgDrag.oW+dx;im.h=imgDrag.oH+dy;}else{im.w=imgDrag.oW+dx;im.h=im.w/ar;}break;case 3:if(sh){im.x=imgDrag.oX+dx;im.w=imgDrag.oW-dx;im.h=imgDrag.oH+dy;}else{im.w=imgDrag.oW-dx;im.h=im.w/ar;im.x=imgDrag.oX+dx;}break;}}im.w=Math.max(10,im.w);im.h=Math.max(10,im.h);render();return;}
   
-  // Smooth Bezier handle drawing
-  if(mode==='pen'&&penDrag){const dx=m.x-penDrag.x,dy=m.y-penDrag.y;penDrag.cx1=penDrag.x-dx;penDrag.cy1=penDrag.y-dy;penDrag.cx2=penDrag.x+dx;penDrag.cy2=penDrag.y+dy;render();return;}
+  // Bezier handle logic (Symmetrical)
+  if(mode==='pen'&&penDrag){
+    const dx=m.x-penDrag.x,dy=m.y-penDrag.y;
+    if(penClosing){penDrag.cx1=penDrag.x-dx;penDrag.cy1=penDrag.y-dy;if(penDrag.cx2==null){penDrag.cx2=penDrag.x+dx;penDrag.cy2=penDrag.y+dy;}}
+    else{penDrag.cx2=penDrag.x+dx;penDrag.cy2=penDrag.y+dy;penDrag.cx1=penDrag.x-dx;penDrag.cy1=penDrag.y-dy;}
+    render();return;
+  }
   if(mode==='pen'){penPrev=[m.x,m.y];render();return;}
   
   if(tool==='linepen'&&linePenPts.length){linePenPts[linePenPts.length-1]=[m.x,m.y];render();return;}
@@ -503,7 +528,8 @@ cv.addEventListener('mousemove',e=>{
 });
 
 cv.addEventListener('mouseup',()=>{
-  imgDrag=null;penDrag=null;
+  imgDrag=null;
+  if(mode==='pen'){if(penClosing){finPen(true);penClosing=false;}penDrag=null;}
   if(tool==='brush'){brushActive=false;const s=getSel();if(s&&s.bpts.length<2)rmS(s.id);mode='idle';render();return;}
   if(mode==='drawing'&&tool==='pixel'){pixelLayer=null;mode='idle';hideBadge();updateProps();render();return;}
   if(mode==='drawing'){const s=getSel();if(s){if(['rect','square','ellipse','arc'].includes(s.type)){if(s.w<0){s.x+=s.w;s.w=-s.w;}if(s.h<0){s.y+=s.h;s.h=-s.h;}s.w=Math.max(1,s.w);s.h=Math.max(1,s.h);if(s.w<3&&s.h<3)rmS(s.id);}if(s.type==='circle'&&s.d<3)rmS(s.id);if(s.type==='line'&&dst(...s.verts[0],...s.verts[1])<3)rmS(s.id);if(s.type==='polygon'&&s.r<3)rmS(s.id);if(s.type==='star'&&s.oR<3)rmS(s.id);}updateProps();}
@@ -511,16 +537,12 @@ cv.addEventListener('mouseup',()=>{
 });
 cv.addEventListener('dblclick',()=>{
   if(mode==='pen'&&penPts.length>=2){finPen(false);render();}
-  if(tool==='linepen'&&linePenPts.length>1){
-    linePenPts.pop();saveUndo();
-    shapes.push(mk('path',{verts:[...linePenPts],closed:false,noFill:true}));
-    linePenPts=[];render();updateProps();
-  }
+  if(tool==='linepen'&&linePenPts.length>1){linePenPts.pop();saveUndo();shapes.push(mk('path',{verts:[...linePenPts],closed:false,noFill:true}));linePenPts=[];render();updateProps();}
 });
 cv.addEventListener('mouseleave',()=>{hovPt=null;pxHov=null;tipEl.style.display='none';if(mode==='pen')penPrev=null;render();});
 cv.addEventListener('contextmenu',e=>e.preventDefault());
 
-function finPen(closed){if(penPts.length<2){penPts=[];mode='idle';hideBadge();return;}saveUndo();const s=mk('path',{segs:penPts.map(p=>({...p})),closed});if(!closed)s.noFill=true;shapes.push(s);selId=s.id;penPts=[];penPrev=null;penDrag=null;mode='idle';hideBadge();updateProps();}
+function finPen(closed){if(penPts.length<2){penPts=[];mode='idle';hideBadge();return;}saveUndo();const s=mk('path',{segs:penPts.map(p=>({...p})),closed});if(!closed)s.noFill=true;shapes.push(s);selId=s.id;penPts=[];penPrev=null;penDrag=null;penClosing=false;mode='idle';hideBadge();updateProps();}
 function rmS(id){shapes=shapes.filter(s=>s.id!==id);if(selId===id)selId=null;}
 function getSel(){return shapes.find(s=>s.id===selId)||null;}
 function showBadge(t){badgeEl.textContent=t;badgeEl.style.display='block';}
@@ -613,7 +635,7 @@ document.addEventListener('mousemove',e=>{if(rsz)$('codesec').style.height=cl(rs
 document.addEventListener('mouseup',()=>{if(rsz){rsz=false;$('resizer').classList.remove('on');}});
 
 // ======== KEYBOARD ========
-document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;if(e.ctrlKey||e.metaKey){if(e.key==='z'){e.preventDefault();undo();}if(e.key==='y'){e.preventDefault();redo();}if(e.key==='d'){e.preventDefault();$('bDup').click();}return;}
+document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT'||e.target.tagName==='TEXTAREA')return;if(e.ctrlKey||e.metaKey){if(e.key==='z'){e.preventDefault();undo();}if(e.key==='y'){e.preventDefault();redo();}if(e.key==='d'){e.preventDefault();$('bDup').click();}return;}
   switch(e.key.toLowerCase()){case'v':selT('select');break;case'r':selT('rect');break;case's':selT('square');break;case'e':selT('ellipse');break;case'c':selT('circle');break;case't':selT('triangle');break;case'l':selT('line');break;case'a':selT('arc');break;case'p':selT('polygon');break;case'n':selT('pen');break;case'k':selT('linepen');break;case'b':selT('brush');break;case'x':selT('pixel');break;case'delete':case'backspace':if(selId){saveUndo();rmS(selId);updateProps();render();}break;case'escape':if(mode==='pen'){if(penPts.length>=2)finPen(false);else{penPts=[];mode='idle';hideBadge();}render();}else{selId=null;selImgI=-1;updateProps();render();}break;case'arrowup':e.preventDefault();nudge(0,e.shiftKey?-10:-1);break;case'arrowdown':e.preventDefault();nudge(0,e.shiftKey?10:1);break;case'arrowleft':e.preventDefault();nudge(e.shiftKey?-10:-1,0);break;case'arrowright':e.preventDefault();nudge(e.shiftKey?10:1,0);break;}
 });
 function nudge(dx,dy){const s=getSel();if(!s)return;saveUndo();applySD(s,dx,dy);updateProps();render();}
@@ -624,7 +646,7 @@ let rawCode='';
 function updateCode(){const isH=colorMode==='hsl';let c='function setup() {\n  createCanvas('+CW+', '+CH+');\n';if(isH)c+='  colorMode(HSL, 360, 100, 100, 255);\n';c+='  noLoop();\n}\n\nfunction draw() {\n  background('+hexCode(bgColor)+');\n';
   shapes.forEach(s=>{c+='\n  // '+s.type[0].toUpperCase()+s.type.slice(1)+' #'+s.id+'\n';const rot=s.rotation||0,np=s.opacity<255,needP=np||rot||(gradGlobal&&s.gradOn);if(needP)c+='  push();\n';
     if(rot&&!['polygon','star','point','pixels'].includes(s.type)){const[cx,cy]=getC(s);c+=`  translate(${Math.round(cx)}, ${Math.round(cy)});\n  rotate(${rot.toFixed(4)});\n  translate(${-Math.round(cx)}, ${-Math.round(cy)});\n`;}
-    if(gradGlobal&&s.gradOn&&!['line','point','brush','pixels'].includes(s.type)){const bb=getBB(s);const ar=d2r(s.gradAng);const len=Math.max(b.w,b.h);const gcx=s.type==='circle'?Math.round(s.px):Math.round(s.x+(s.w||0)/2),gcy=s.type==='circle'?Math.round(s.py):Math.round(s.y+(s.h||0)/2);if(s.gradMode==='radial'){c+=`  let g=drawingContext.createRadialGradient(${gcx},${gcy},0,${gcx},${gcy},${Math.round(len/2)});\n`;}else{c+=`  let g=drawingContext.createLinearGradient(${Math.round(gcx-Math.cos(ar)*len/2)},${Math.round(gcy-Math.sin(ar)*len/2)},${Math.round(gcx+Math.cos(ar)*len/2)},${Math.round(gcy+Math.sin(ar)*len/2)});\n`;}c+=`  g.addColorStop(0,'${s.gradC1}');g.addColorStop(1,'${s.gradC2}');\n  drawingContext.fillStyle=g;\n`;}
+    if(gradGlobal&&s.gradOn&&!['line','point','brush','pixels'].includes(s.type)){const b=getBB(s);const ar=d2r(s.gradAng);const len=Math.max(b.w,b.h);const gcx=s.type==='circle'?Math.round(s.px):Math.round(s.x+(s.w||0)/2),gcy=s.type==='circle'?Math.round(s.py):Math.round(s.y+(s.h||0)/2);if(s.gradMode==='radial'){c+=`  let g=drawingContext.createRadialGradient(${gcx},${gcy},0,${gcx},${gcy},${Math.round(len/2)});\n`;}else{c+=`  let g=drawingContext.createLinearGradient(${Math.round(gcx-Math.cos(ar)*len/2)},${Math.round(gcy-Math.sin(ar)*len/2)},${Math.round(gcx+Math.cos(ar)*len/2)},${Math.round(gcy+Math.sin(ar)*len/2)});\n`;}c+=`  g.addColorStop(0,'${s.gradC1}');g.addColorStop(1,'${s.gradC2}');\n  drawingContext.fillStyle=g;\n`;}
     else if(!['line','point'].includes(s.type)){if(s.noFill)c+='  noFill();\n';else c+=`  fill(${hexCode(s.fill,np?s.opacity:undefined)});\n`;}
     if(s.noStroke)c+='  noStroke();\n';else c+=`  stroke(${hexCode(s.stroke)});\n  strokeWeight(${s.strokeWeight});\n`;
     switch(s.type){
