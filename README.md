@@ -1,5 +1,5 @@
 # visual-p5js-editor-canvas2code
-made with cluade opus 4.6 thinking
+made with cluade opus 4.6 and sonnet 4.6
 desc:
 
 by Eabusham2
