@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>p5.js Shape Designer</title>
+<title>Shape Designer → p5.js Code</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%237c3aed'/><text x='16' y='22' text-anchor='middle' font-size='18' fill='white'>✦</text></svg>">
 <style>
 :root{--bg:#0c0c14;--bg2:#141420;--bg3:#1c1c30;--bg4:#252545;--accent:#7c3aed;--accent2:#9b5dff;--text:#c8cad0;--dim:#555;--border:#252540;--green:#22c55e;--red:#ef4444;--yellow:#fbbf24;--blue:#3b82f6}
@@ -35,11 +35,15 @@ body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);co
 .mm button.on{background:var(–accent);color:#fff}
 .mm button.off{background:transparent;color:#666}
 
-/* GLOBAL TOOLTIP */
-#gtooltip{position:fixed;z-index:99999;background:#0a0a18;color:#ddd;padding:7px 11px;border-radius:7px;font-size:10px;white-space:nowrap;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .15s,visibility .15s;border:1px solid #2a2a4a;box-shadow:0 6px 24px rgba(0,0,0,.7);line-height:1.5;max-width:220px;white-space:normal}
+/* TOOLTIPS */
+.tb .tp{position:fixed;background:#0a0a14;color:#ccc;padding:6px 10px;border-radius:6px;font-size:9px;z-index:99999;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .15s,visibility .15s;border:1px solid #2a2a4a;box-shadow:0 4px 16px rgba(0,0,0,.6);line-height:1.5;text-align:left;max-width:220px;white-space:normal}
+.tb:hover .tp{opacity:1;visibility:visible}
+.tp b{color:var(–accent2)}.tp kbd{background:var(–bg4);padding:1px 4px;border-radius:3px;font-size:8px;color:#999;font-family:monospace}
+/* Global tooltip for non-button toolbar items */
+#gtooltip{position:fixed;z-index:99999;background:#0a0a14;color:#ccc;padding:6px 10px;border-radius:6px;font-size:9px;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .15s,visibility .15s;border:1px solid #2a2a4a;box-shadow:0 4px 16px rgba(0,0,0,.6);line-height:1.5;max-width:220px;white-space:normal}
 #gtooltip.show{opacity:1;visibility:visible}
 #gtooltip b{color:var(–accent2)}
-#gtooltip kbd{background:var(–bg4);padding:1px 5px;border-radius:3px;font-size:8px;color:#999;font-family:monospace}
+#gtooltip kbd{background:var(–bg4);padding:1px 4px;border-radius:3px;font-size:8px;color:#999;font-family:monospace}
 
 /* MAIN */
 .main{display:flex;flex:1;overflow:hidden;min-height:0;position:relative;z-index:10}
@@ -116,8 +120,8 @@ canvas#cv{display:block;border-radius:2px}
 .codehd button{height:26px;padding:0 10px;border:none;border-radius:5px;background:var(–accent);color:#fff;font-size:10px;cursor:pointer;font-weight:600;transition:all .15s}
 .codehd button:hover{background:var(–accent2);transform:translateY(-1px)}
 .codehd button.ok{background:var(–green)}
-.codehd button.sec{background:var(–bg4);color:#aaa;}
-.codehd button.sec:hover{background:#444;color:#fff;}
+#openP5Btn{background:var(–bg4);color:#aaa;}
+#openP5Btn:hover{background:#444 !important;color:#fff !important;}
 .codeout{flex:1;overflow:auto;padding:8px 14px;font-family:‘Fira Code’,‘Cascadia Code’,monospace;font-size:11px;line-height:1.5;color:#a9b1d6;white-space:pre;tab-size:2;background:var(–bg)}
 .codeout .kw{color:#bb9af7}.codeout .fn{color:#7aa2f7}.codeout .num{color:#ff9e64}.codeout .cmt{color:#565f89;font-style:italic}.codeout .str{color:#9ece6a}
 
@@ -127,89 +131,64 @@ canvas#cv{display:block;border-radius:2px}
 </head>
 <body>
 
-<!-- GLOBAL TOOLTIP -->
-
-<div id="gtooltip"></div>
-
 <div class="toolbar" id="toolbar">
  <div class="tg">
-  <button class="tb active" data-tool="select" data-tip="<b>Select</b><br>Click to select, drag to move, grab anchors to resize.<br><kbd>V</kbd>"><span>↖</span></button>
-  <button class="tb" data-tool="rect" data-tip="<b>Rectangle</b><br>Drag to draw. Shift constrains.<br><kbd>R</kbd>"><span>▭</span></button>
-  <button class="tb" data-tool="square" data-tip="<b>Square</b><br>Always equal W &amp; H.<br><kbd>S</kbd>"><span>□</span></button>
-  <button class="tb" data-tool="ellipse" data-tip="<b>Ellipse</b><br>Drag for oval shape.<br><kbd>E</kbd>"><span>⬮</span></button>
-  <button class="tb" data-tool="circle" data-tip="<b>Circle</b><br>Perfect circle by diameter.<br><kbd>C</kbd>"><span>◯</span></button>
-  <button class="tb" data-tool="triangle" data-tip="<b>Triangle</b><br>Drag to create triangle.<br><kbd>T</kbd>"><span>△</span></button>
-  <button class="tb" data-tool="line" data-tip="<b>Line</b><br>Draw between two points.<br><kbd>L</kbd>"><span>╱</span></button>
-  <button class="tb" data-tool="arc" data-tip="<b>Arc</b><br>Partial ellipse with angles.<br><kbd>A</kbd>"><span>◠</span></button>
-  <button class="tb" data-tool="point" data-tip="<b>Point</b><br>Single point, size = strokeWeight.<br><kbd>.</kbd>"><span>•</span></button>
-  <button class="tb" data-tool="polygon" data-tip="<b>Polygon</b><br>N-sided regular polygon.<br><kbd>P</kbd>"><span>⬡</span></button>
-  <button class="tb" data-tool="star" data-tip="<b>Star</b><br>N-pointed star shape.<br><kbd>*</kbd>"><span>★</span></button>
-  <button class="tb" data-tool="pen" data-tip="<b>Bezier Pen</b><br>Click for corners, drag for curves.<br>Click start point to close. Esc to end.<br><kbd>N</kbd>"><span>✒</span></button>
-  <button class="tb" data-tool="linepen" data-tip="<b>Line Pen</b><br>Click for straight-line vertices.<br>Click start to close, Dbl-click to end.<br><kbd>K</kbd>"><span>✏</span></button>
-  <button class="tb" data-tool="brush" data-tip="<b>Brush</b><br>Freehand drawing. Select to edit/extend.<br><kbd>B</kbd>"><span>🖌</span></button>
-  <button class="tb" data-tool="pixel" data-tip="<b>Pixel Art</b><br>Paint grid cells. Right-click erases.<br>Select layer to continue painting.<br><kbd>X</kbd>"><span>▦</span></button>
-  <button class="tb" data-tool="text" data-tip="<b>Text</b><br>Click to place text on canvas.<br><kbd>W</kbd>"><span>T</span></button>
+  <button class="tb active" data-tool="select"><span>↖</span><div class="tp"><b>Select</b><br>Click to select, drag to move, grab anchor points to resize.<br><kbd>V</kbd></div></button>
+  <button class="tb" data-tool="rect"><span>▭</span><div class="tp"><b>Rectangle</b><br>Drag to draw. Shift constrains ratio.<br><kbd>R</kbd></div></button>
+  <button class="tb" data-tool="square"><span>□</span><div class="tp"><b>Square</b><br>Always equal Width &amp; Height.<br><kbd>S</kbd></div></button>
+  <button class="tb" data-tool="ellipse"><span>⬮</span><div class="tp"><b>Ellipse</b><br>Independent Width &amp; Height oval.<br><kbd>E</kbd></div></button>
+  <button class="tb" data-tool="circle"><span>◯</span><div class="tp"><b>Circle</b><br>Perfect circle by diameter.<br><kbd>C</kbd></div></button>
+  <button class="tb" data-tool="triangle"><span>△</span><div class="tp"><b>Triangle</b><br>Drag to create, then reshape vertices.<br><kbd>T</kbd></div></button>
+  <button class="tb" data-tool="line"><span>╱</span><div class="tp"><b>Line</b><br>Draw between two endpoints.<br><kbd>L</kbd></div></button>
+  <button class="tb" data-tool="arc"><span>◠</span><div class="tp"><b>Arc</b><br>Partial ellipse with start/end angle.<br><kbd>A</kbd></div></button>
+  <button class="tb" data-tool="point"><span>•</span><div class="tp"><b>Point</b><br>Single point, size = strokeWeight.<br><kbd>.</kbd></div></button>
+  <button class="tb" data-tool="polygon"><span>⬡</span><div class="tp"><b>Polygon</b><br>N-sided regular polygon (3–30).<br><kbd>P</kbd></div></button>
+  <button class="tb" data-tool="star"><span>★</span><div class="tp"><b>Star</b><br>N-pointed star with inner/outer radius.<br><kbd>*</kbd></div></button>
+  <button class="tb" data-tool="pen"><span>✒</span><div class="tp"><b>Bezier Pen</b><br>Click corners, drag for smooth curves.<br>Click start point to close. Esc to finish.<br><kbd>N</kbd></div></button>
+  <button class="tb" data-tool="linepen"><span>✏</span><div class="tp"><b>Line Pen</b><br>Classic straight-line vertex tool.<br>Click start to close or dbl-click.<br><kbd>K</kbd></div></button>
+  <button class="tb" data-tool="brush"><span>🖌</span><div class="tp"><b>Brush</b><br>Freehand drawing. Select layer to extend.<br><kbd>B</kbd></div></button>
+  <button class="tb" data-tool="pixel"><span>▦</span><div class="tp"><b>Pixel Art</b><br>Paint grid cells. Right-click erases.<br>Select existing layer to keep painting.<br><kbd>X</kbd></div></button>
+  <button class="tb" data-tool="text"><span>T</span><div class="tp"><b>Text</b><br>Click canvas to place text.<br>Select to move/edit properties.<br><kbd>W</kbd></div></button>
  </div>
  <div class="tg">
-  <label data-tip="<b>Fill Color</b><br>Default fill for new shapes">Fill<input type="color" id="dFill" value="#4a90d9"></label>
-  <label data-tip="<b>Stroke Color</b><br>Default stroke for new shapes">Str<input type="color" id="dStr" value="#222222"></label>
-  <label data-tip="<b>Stroke Weight</b><br>Line thickness in pixels">Wt<input type="number" id="dWt" value="2" min="0" max="50"></label>
+  <label>Fill<input type="color" id="dFill" value="#4a90d9"></label>
+  <label>Str<input type="color" id="dStr" value="#222222"></label>
+  <label>Wt<input type="number" id="dWt" value="2" min="0" max="50"></label>
  </div>
- <div class="tg" id="tPoly" style="display:none">
-  <label data-tip="<b>Polygon Sides</b><br>Number of sides (3–30)">Sides<input type="number" id="nSides" value="6" min="3" max="30"></label>
- </div>
- <div class="tg" id="tStar" style="display:none">
-  <label data-tip="<b>Star Points</b><br>Number of star points">Pts<input type="number" id="nStarP" value="5" min="3" max="20"></label>
-  <label data-tip="<b>Inner Radius %</b><br>Inner radius as % of outer">In%<input type="number" id="starIn" value="40" min="10" max="90"></label>
- </div>
- <div class="tg" id="tArc" style="display:none">
-  <label data-tip="<b>Start Angle</b>">S°<input type="number" id="arcS" value="0"></label>
-  <label data-tip="<b>End Angle</b>">E°<input type="number" id="arcE" value="180"></label>
-  <select id="arcM" data-tip="<b>Arc Mode</b><br>PIE = wedge, CHORD = chord, OPEN = open arc"><option>PIE</option><option>CHORD</option><option>OPEN</option></select>
- </div>
- <div class="tg" id="tBrush" style="display:none">
-  <label data-tip="<b>Brush Size</b>">Sz<input type="number" id="brSz" value="6" min="1"></label>
-  <select id="brSh" data-tip="<b>Brush Shape</b>"><option value="circle">●</option><option value="square">■</option></select>
- </div>
+ <div class="tg" id="tPoly" style="display:none"><label>Sides<input type="number" id="nSides" value="6" min="3" max="30"></label></div>
+ <div class="tg" id="tStar" style="display:none"><label>Pts<input type="number" id="nStarP" value="5" min="3" max="20"></label><label>In%<input type="number" id="starIn" value="40" min="10" max="90"></label></div>
+ <div class="tg" id="tArc" style="display:none"><label>S°<input type="number" id="arcS" value="0"></label><label>E°<input type="number" id="arcE" value="180"></label><select id="arcM"><option>PIE</option><option>CHORD</option><option>OPEN</option></select></div>
+ <div class="tg" id="tBrush" style="display:none"><label>Sz<input type="number" id="brSz" value="6" min="1"></label><select id="brSh"><option value="circle">●</option><option value="square">■</option></select></div>
  <div class="tg" id="tText" style="display:none">
-  <label data-tip="<b>Font Size</b>">Sz<input type="number" id="tFontSz" value="24" min="4" max="300"></label>
-  <select id="tFontFam" data-tip="<b>Font Family</b>">
-   <option>Arial</option><option>Georgia</option><option>Courier New</option><option>Verdana</option><option>Times New Roman</option><option>Impact</option><option>Comic Sans MS</option>
-  </select>
-  <div class="mm" id="tStyleMm">
-   <button class="off" data-ts="bold" data-tip="Bold">B</button>
-   <button class="off" data-ts="italic" data-tip="Italic"><i>I</i></button>
-  </div>
-  <label data-tip="<b>Text Align</b>">
-   <select id="tAlign">
-    <option value="left">⬅</option><option value="center" selected>↔</option><option value="right">➡</option>
-   </select>
-  </label>
+  <label>Sz<input type="number" id="tFontSz" value="24" min="4" max="300"></label>
+  <select id="tFontFam"><option>Arial</option><option>Georgia</option><option>Courier New</option><option>Verdana</option><option>Times New Roman</option><option>Impact</option><option>Comic Sans MS</option></select>
+  <div class="mm" id="tStyleMm"><button class="off" data-ts="bold">B</button><button class="off" data-ts="italic"><i>I</i></button></div>
+  <select id="tAlign"><option value="left">⬅</option><option value="center" selected>↔</option><option value="right">➡</option></select>
  </div>
  <div class="tg">
-  <label data-tip="<b>Canvas Width</b>">W<input type="number" id="cW" value="800" min="100" max="2000"></label>
-  <label data-tip="<b>Canvas Height</b>">H<input type="number" id="cH" value="500" min="100" max="2000"></label>
-  <label data-tip="<b>Background Color</b>">BG<input type="color" id="bgC" value="#f0f0f0"></label>
-  <label data-tip="<b>Grid Size</b><br>Also sets pixel art cell size">Grid<input type="number" id="gridSz" value="50" min="5" max="200" style="width:38px"></label>
+  <label>W<input type="number" id="cW" value="800" min="100" max="2000"></label>
+  <label>H<input type="number" id="cH" value="500" min="100" max="2000"></label>
+  <label>BG<input type="color" id="bgC" value="#f0f0f0"></label>
+  <label>Grid<input type="number" id="gridSz" value="50" min="5" max="200" style="width:38px"></label>
  </div>
  <div class="tg">
-  <label class="chk" data-tip="<b>Snap to Grid &amp; Shapes</b><br>Edges snap to grid and other shapes"><input type="checkbox" id="oSnap" checked>Snap</label>
-  <label class="chk" data-tip="<b>Show Grid</b>"><input type="checkbox" id="oGrid" checked>Grid</label>
-  <label class="chk" data-tip="<b>Show Anchor Points</b>"><input type="checkbox" id="oPts" checked>Pts</label>
-  <label class="chk" data-tip="<b>Enable Gradients</b><br>Turns on gradient fills for shapes"><input type="checkbox" id="oGrad">Grad</label>
+  <label class="chk"><input type="checkbox" id="oSnap" checked>Snap</label>
+  <label class="chk"><input type="checkbox" id="oGrid" checked>Grid</label>
+  <label class="chk"><input type="checkbox" id="oPts" checked>Pts</label>
+  <label class="chk"><input type="checkbox" id="oGrad">Grad</label>
  </div>
  <div class="tg">
-  <span style="font-size:9px;color:#666" data-tip="<b>Color Mode</b><br>Switch between RGB and HSL color input">Color:</span>
-  <div class="mm" id="mm" data-tip="<b>RGB / HSL</b><br>RGB = Red/Green/Blue<br>HSL = Hue/Saturation/Lightness"><button class="on" data-m="rgb">RGB</button><button class="off" data-m="hsl">HSL</button></div>
-  <div class="mm" id="angMm" style="margin-left:4px" data-tip="<b>Angle Mode</b><br>Degrees or Radians in code output"><button class="on" data-ang="deg">DEG</button><button class="off" data-ang="rad">RAD</button></div>
+  <span style="font-size:9px;color:#666">Color:</span>
+  <div class="mm" id="mm"><button class="on" data-m="rgb">RGB</button><button class="off" data-m="hsl">HSL</button></div>
+  <div class="mm" id="angMm" style="margin-left:4px"><button class="on" data-ang="deg"><div class="tp"><b>Degrees</b><br>Output angles as degrees in code</div>DEG</button><button class="off" data-ang="rad"><div class="tp"><b>Radians</b><br>Output angles as radians in code</div>RAD</button></div>
  </div>
  <div class="tg">
-  <button class="abtn" style="background:#555" onclick="undo()" data-tip="<b>Undo</b><br><kbd>Ctrl+Z</kbd>">↩</button>
-  <button class="abtn" style="background:#555" onclick="redo()" data-tip="<b>Redo</b><br><kbd>Ctrl+Y</kbd>">↪</button>
-  <button class="abtn" style="background:var(--red)" onclick="clearAll()" data-tip="<b>Clear All</b><br>Remove all shapes">🗑</button>
-  <button class="abtn" style="background:var(--blue)" onclick="exportPNG()" data-tip="<b>Export PNG</b><br>Save canvas as image">📥</button>
-  <button class="abtn" style="background:#0a8" onclick="document.getElementById('imgIn').click()" data-tip="<b>Import Image</b><br>Add template/reference image">🖼</button>
-  <button class="abtn" style="background:#666" onclick="newPage()" data-tip="<b>New Page</b><br>Clear everything and start fresh">📄</button>
+  <button class="abtn" style="background:#555" onclick="undo()">↩<div class="tp"><b>Undo</b><br><kbd>Ctrl+Z</kbd></div></button>
+  <button class="abtn" style="background:#555" onclick="redo()">↪<div class="tp"><b>Redo</b><br><kbd>Ctrl+Y</kbd></div></button>
+  <button class="abtn" style="background:var(--red)" onclick="clearAll()">🗑<div class="tp"><b>Clear All</b><br>Remove all shapes</div></button>
+  <button class="abtn" style="background:var(--blue)" onclick="exportPNG()">📥<div class="tp"><b>Export PNG</b><br>Save canvas as image</div></button>
+  <button class="abtn" style="background:#0a8" onclick="document.getElementById('imgIn').click()">🖼<div class="tp"><b>Import Image</b><br>Add template/reference image</div></button>
+  <button class="abtn" style="background:#666" onclick="newPage()">📄<div class="tp"><b>New Page</b><br>Clear everything and start fresh</div></button>
   <input type="file" id="imgIn" accept="image/*" multiple style="display:none">
  </div>
 </div>
@@ -268,9 +247,9 @@ canvas#cv{display:block;border-radius:2px}
 <div class="codesec" id="codesec" style="height:180px">
  <div class="codehd">
   <span>📝 p5.js Code <small id="cmLbl" style="color:#444"></small></span>
-  <div class="codehd-btns">
-   <button class="sec" id="openP5Btn" data-tip="<b>Open in p5.js Editor</b><br>Copy code and open editor.p5js.org">▶ p5</button>
-   <button id="copyBtn" data-tip="<b>Copy Code</b><br>Copy to clipboard">📋 Copy</button>
+  <div style="display:flex;gap:4px">
+   <button id="openP5Btn">▶ p5</button>
+   <button id="copyBtn">📋 Copy</button>
   </div>
  </div>
  <div class="codeout" id="codeOut"></div>
@@ -304,35 +283,24 @@ const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
 const badgeEl=document.getElementById('badge');
 const SD=10,PR=5,PHR=8,PHT=11;
 
-// ======== GLOBAL TOOLTIP ========
-const gtEl=document.getElementById('gtooltip');
-let gtTimer=null;
-function initTooltips(){
-  document.querySelectorAll('[data-tip]').forEach(el=>{
-    el.addEventListener('mouseenter',ev=>{
-      clearTimeout(gtTimer);
-      gtTimer=setTimeout(()=>{
-        gtEl.innerHTML=el.dataset.tip;
-        positionTooltip(ev.clientX,ev.clientY);
-        gtEl.classList.add('show');
-      },400);
-    });
-    el.addEventListener('mousemove',ev=>positionTooltip(ev.clientX,ev.clientY));
-    el.addEventListener('mouseleave',()=>{clearTimeout(gtTimer);gtEl.classList.remove('show');});
+// ======== TOOLTIP POSITIONING ========
+// Position .tp divs via mousemove so they never go off-screen
+document.addEventListener('mousemove',ev=>{
+  document.querySelectorAll('.tp').forEach(tp=>{
+    const par=tp.parentElement;
+    if(!par||!par.matches(':hover'))return;
+    const vw=window.innerWidth,vh=window.innerHeight,pad=8;
+    const tw=tp.offsetWidth||180,th=tp.offsetHeight||60;
+    let x=ev.clientX+14,y=ev.clientY+14;
+    if(x+tw+pad>vw)x=ev.clientX-tw-10;
+    if(y+th+pad>vh)y=ev.clientY-th-10;
+    if(x<pad)x=pad;if(y<pad)y=pad;
+    tp.style.left=x+'px';tp.style.top=y+'px';
   });
-}
-function positionTooltip(cx,cy){
-  gtEl.style.visibility='hidden';gtEl.style.display='block';
-  const tw=gtEl.offsetWidth,th=gtEl.offsetHeight;
-  gtEl.style.visibility='';gtEl.style.display='';
-  const pad=10,vw=window.innerWidth,vh=window.innerHeight;
-  let x=cx+12,y=cy+12;
-  if(x+tw+pad>vw)x=cx-tw-12;
-  if(y+th+pad>vh)y=cy-th-12;
-  if(x<pad)x=pad;
-  if(y<pad)y=pad;
-  gtEl.style.left=x+'px';gtEl.style.top=y+'px';
-}
+});
+// Global tooltip stub (not used but referenced)
+const gtEl={classList:{add:()=>{},remove:()=>{}}};
+function initTooltips(){}
 
 // ======== COLOR UTILS ========
 function h2r(h){h=h.replace('#','');if(h.length===3)h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];return[parseInt(h.substring(0,2),16)||0,parseInt(h.substring(2,4),16)||0,parseInt(h.substring(4,6),16)||0];}
