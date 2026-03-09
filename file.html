@@ -158,7 +158,7 @@ canvas#cv{display:block;border-radius:2px;image-rendering:-webkit-optimize-contr
 .ab-split-label{font-size:9px;color:#666;padding:2px 6px;background:var(--bg3);border-bottom:1px solid var(--border);cursor:pointer;flex-shrink:0;display:flex;align-items:center;gap:4px;user-select:none}
 .ab-split-label:hover{color:#ccc}
 .ab-split-label-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ab-split-cwrap{flex:1;overflow:hidden;position:relative}
+.ab-split-cwrap{flex:1;overflow:hidden;position:relative;min-height:0;display:flex;flex-direction:column}
 .ab-split-zoom{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);display:flex;gap:2px;z-index:20;background:rgba(10,10,20,.85);border-radius:4px;padding:2px 5px;border:1px solid #2a2a4a;pointer-events:auto}
 .ab-split-zoom button{border:none;background:none;color:#aaa;font-size:9px;cursor:pointer;padding:1px 4px}.ab-split-zoom button:hover{color:#fff}
 .ab-split-divider{width:6px;flex-shrink:0;background:var(--bg3);cursor:ew-resize;border-left:1px solid var(--border);border-right:1px solid var(--border);transition:background .12s}
@@ -178,7 +178,10 @@ canvas#cv{display:block;border-radius:2px;image-rendering:-webkit-optimize-contr
 .ab-browser-zoombar button{padding:2px 7px;border:1px solid var(--border);border-radius:4px;background:var(--bg4);color:#aaa;font-size:10px;cursor:pointer;transition:all .12s}
 .ab-browser-zoombar button:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
 /* cwrap inside split/browser modes */
-.ab-split-cwrap .cwrap,.ab-browser-canvas-wrap .cwrap{display:flex!important;flex:1;width:100%;height:100%;position:relative}
+.ab-split-cwrap .cwrap,.ab-browser-canvas-wrap .cwrap{display:flex!important;flex:1;width:100%;height:100%;position:relative;min-height:0}
+.ab-split-pane{position:relative}
+.ab-split-preview-wrap{flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;background:var(--bg);padding:8px;box-sizing:border-box;cursor:pointer;min-height:0}
+.ab-split-preview-canvas{display:block;max-width:100%;height:auto;border:1px solid var(--border)}
 </style>
 </head>
 <body>
@@ -1858,12 +1861,16 @@ function _abSwitch(id) {
 function _abAdd() {
   _abSave();
   const id = ++_abIdCnt;
+  // Place new artboard to the right of the last one in browser mode
+  const lastAB = _artboards[_artboards.length - 1];
+  const newBx = lastAB ? (lastAB.bx || 80) + (lastAB.CW || 800) + 60 : 80;
+  const newBy = lastAB ? (lastAB.by || 80) : 80;
   const ab = {
     id, name: 'Artboard ' + id,
     shapes: [], tplImgs: [], uid: uid,
     CW: CW, CH: CH, bgColor: bgColor,
     zoom: 1, panX: 0, panY: 0,
-    bx: 80 + (_artboards.length) * (CW + 60), by: 80
+    bx: newBx, by: newBy
   };
   _artboards.push(ab);
   _activeABId = id;
@@ -1871,7 +1878,7 @@ function _abAdd() {
   render(); updateCode(); updateLayers(); updateProps(); updateImgList();
   _abRenderTabs();
   if (_abMode === 'split') _abBuildSplit();
-  else if (_abMode === 'browser') _abbBuild();
+  else if (_abMode === 'browser') { _abbBuild(); setTimeout(()=>document.getElementById('abbZoomFit')&&document.getElementById('abbZoomFit').click(),80); }
   scheduleSaveState();
 }
 
@@ -1929,7 +1936,12 @@ function _abSetMode(mode) {
     if (splitWrap) { splitWrap.style.display = 'flex'; _abBuildSplit(); }
   } else if (mode === 'browser') {
     _abCwrap.style.display = 'none';
-    if (browserWrap) { browserWrap.style.display = 'flex'; _abbBuild(); }
+    if (browserWrap) {
+      browserWrap.style.display = 'flex';
+      _abbBuild();
+      // Auto-fit all artboards into view when first entering browser mode
+      setTimeout(() => { document.getElementById('abbZoomFit') && document.getElementById('abbZoomFit').click(); }, 80);
+    }
   }
   scheduleSaveState();
 }
@@ -2090,11 +2102,13 @@ function _abBuildSplit() {
     if (ab.id === _activeABId) {
       _abPlaceCwrapIn(cwrapDiv);
     } else {
+      const previewWrap = document.createElement('div');
+      previewWrap.className = 'ab-split-preview-wrap';
       const previewCanvas = document.createElement('canvas');
-      previewCanvas.style.cssText = 'display:block;max-width:100%;max-height:100%;object-fit:contain;cursor:pointer';
-      cwrapDiv.style.display = 'flex'; cwrapDiv.style.alignItems = 'center'; cwrapDiv.style.justifyContent = 'center'; cwrapDiv.style.background = 'var(--bg)';
-      cwrapDiv.appendChild(previewCanvas);
-      cwrapDiv.addEventListener('click', () => _abSwitch(ab.id));
+      previewCanvas.className = 'ab-split-preview-canvas';
+      previewWrap.appendChild(previewCanvas);
+      cwrapDiv.appendChild(previewWrap);
+      previewWrap.addEventListener('click', () => _abSwitch(ab.id));
       // Render preview after DOM is ready
       setTimeout(() => _abRenderPreview(ab, previewCanvas), 0);
     }
@@ -2111,10 +2125,10 @@ function _abSyncSplitActive() {
   activePane.classList.add('absp-act');
   const cwrapDiv = activePane.querySelector('.ab-split-cwrap');
   if (cwrapDiv && !cwrapDiv.contains(_abCwrap)) {
-    // Move cwrap here
-    cwrapDiv.innerHTML = '';
+    // Remove preview wrap if it was there
+    const prevWrap = cwrapDiv.querySelector('.ab-split-preview-wrap');
+    if (prevWrap) prevWrap.remove();
     _abPlaceCwrapIn(cwrapDiv);
-    cwrapDiv.style.display = ''; cwrapDiv.style.alignItems = ''; cwrapDiv.style.justifyContent = '';
   }
   // Update previews for other panes
   _artboards.forEach(ab => {
@@ -2127,15 +2141,18 @@ function _abSyncSplitActive() {
     if (cwrapDivOther.contains(_abCwrap)) {
       cwrapDivOther.innerHTML = '';
     }
-    let previewCanvas = cwrapDivOther.querySelector('canvas');
-    if (!previewCanvas) {
-      previewCanvas = document.createElement('canvas');
-      previewCanvas.style.cssText = 'display:block;max-width:100%;max-height:100%;object-fit:contain;cursor:pointer';
-      cwrapDivOther.style.display = 'flex'; cwrapDivOther.style.alignItems = 'center'; cwrapDivOther.style.justifyContent = 'center'; cwrapDivOther.style.background = 'var(--bg)';
-      cwrapDivOther.appendChild(previewCanvas);
-      cwrapDivOther.addEventListener('click', () => _abSwitch(ab.id));
+    let previewWrap = cwrapDivOther.querySelector('.ab-split-preview-wrap');
+    if (!previewWrap) {
+      previewWrap = document.createElement('div');
+      previewWrap.className = 'ab-split-preview-wrap';
+      const previewCanvas = document.createElement('canvas');
+      previewCanvas.className = 'ab-split-preview-canvas';
+      previewWrap.appendChild(previewCanvas);
+      cwrapDivOther.appendChild(previewWrap);
+      previewWrap.addEventListener('click', () => _abSwitch(ab.id));
     }
-    setTimeout(() => _abRenderPreview(ab, previewCanvas), 10);
+    const pc = previewWrap.querySelector('canvas');
+    if (pc) setTimeout(() => _abRenderPreview(ab, pc), 10);
   });
 }
 
@@ -2262,6 +2279,7 @@ function _abbSyncActive() {
   activeEl.classList.add('abb-act');
   const carea = activeEl.querySelector('.ab-browser-canvas-wrap');
   if (carea && !carea.contains(_abCwrap)) {
+    // Clear any preview canvas before placing cwrap
     carea.innerHTML = '';
     _abPlaceCwrapIn(carea);
   }
@@ -2276,7 +2294,7 @@ function _abbSyncActive() {
     let pc = ca.querySelector('canvas');
     if (!pc) {
       pc = document.createElement('canvas');
-      pc.style.cssText = 'display:block;cursor:pointer';
+      pc.style.cssText = 'display:block;width:100%;height:auto;cursor:pointer';
       ca.appendChild(pc);
       ca.addEventListener('click', () => {
         _abSave(); _activeABId = ab.id;
@@ -2298,14 +2316,12 @@ function _abbApplyTransform() {
   const bwrap = document.getElementById('abBrowserWrap');
   if (!bwrap) return;
   bwrap.addEventListener('mousedown', e => {
-    if (e.target !== bwrap && e.target !== document.getElementById('abBrowserStage')) {
-      // Check if clicking on empty space in stage
-      const stage = document.getElementById('abBrowserStage');
-      if (!stage || !e.target.closest('.ab-browser-ab')) {
-        // clicking empty stage area
-      } else return;
-    }
-    if (e.button !== 0 && e.button !== 1) return;
+    // Pan when clicking: the bwrap background, the stage background, or middle mouse button on anything
+    const clickedAB = e.target.closest('.ab-browser-ab');
+    const isMid = e.button === 1;
+    const isLeft = e.button === 0;
+    if (!isMid && isLeft && clickedAB) return; // let artboard handle it
+    if (!isMid && !isLeft) return;
     _abbPanning = true;
     _abbPanStart = { x: e.clientX, y: e.clientY, origX: _abbPan.x, origY: _abbPan.y };
     e.preventDefault();
@@ -2377,7 +2393,9 @@ saveStateToStorage = function() {
       CW: ab.CW, CH: ab.CH, bgColor: ab.bgColor,
       zoom: ab.zoom, panX: ab.panX, panY: ab.panY,
       bx: ab.bx, by: ab.by
-      // tplImgs are not serialized per artboard for simplicity (only active artboard's)
+      // NOTE: tplImgs (template/reference images) are not serialized per artboard.
+      // Only the active artboard's tplImgs are saved via the main tplImgsSerialized field.
+      // Per-artboard tplImgs are stored in-memory in ab.tplImgs but are not persisted across reloads.
     }));
     try {
       const payload = JSON.stringify({
