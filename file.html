@@ -205,7 +205,10 @@ canvas#cv{display:block;border-radius:2px;image-rendering:-webkit-optimize-contr
   <button class="abtn abtn-fixed" style="background:var(--red)" id="resetBtn" title="Reset to defaults"><span aria-hidden="true">↺</span><div class="tp"><b>Reset to defaults</b><br>Clear all shapes and images, then reset all options to default. You will be asked to confirm.</div></button>
   <button class="abtn" style="background:var(--blue)" onclick="exportPNG()">📥<div class="tp"><b>Export PNG</b><br>Download canvas as image</div></button>
   <button class="abtn" style="background:#0a8" onclick="document.getElementById('imgIn').click()">🖼<div class="tp"><b>Import Image</b><br>Add reference image template</div></button>
+  <button class="abtn" style="background:var(--green)" onclick="exportSaveJSON()">💾<div class="tp"><b>Export Save</b><br>Download project as JSON to open later</div></button>
+  <button class="abtn" style="background:#059" onclick="document.getElementById('saveIn').click()">📂<div class="tp"><b>Import Save</b><br>Load a previously exported JSON project</div></button>
   <input type="file" id="imgIn" accept="image/*" multiple style="display:none">
+  <input type="file" id="saveIn" accept=".json,application/json" style="display:none">
  </div>
 </div>
 
@@ -273,7 +276,7 @@ canvas#cv{display:block;border-radius:2px;image-rendering:-webkit-optimize-contr
 let shapes=[],selId=null,hovPt=null,tool='select',hovShapeId=null;
 let CW=800,CH=500,bgColor='#f0f0f0',uid=1,updUI=false;
 let zoom=1,panX=0,panY=0,isPanning=false,panSX=0,panSY=0,panOX=0,panOY=0;
-const MIN_ZOOM=0.75,MAX_ZOOM=4;
+const MIN_ZOOM=0.25,MAX_ZOOM=4;
 let snapOn=true,showGrid=true,showPts=true,gradGlobal=true,colorMode='rgb',angleMode='deg';
 let gridSz=50,gridOpacity=12,mode='idle',dragPtI=-1,startMX,startMY,dragOX,dragOY,dragOrig=null;
 let penPts=[],penDrag=null,penPrev=null,penClosing=false;
@@ -401,6 +404,57 @@ function loadStateFromStorage(){
 
 let saveStateTimer=null;
 function scheduleSaveState(){if(saveStateTimer)clearTimeout(saveStateTimer);saveStateTimer=setTimeout(()=>{saveStateTimer=null;saveStateToStorage();},400);}
+
+function exportSaveJSON(){
+  const options=getOptionsFromDOM();
+  let maxId=0;shapes.forEach(s=>{if(s.id>maxId)maxId=s.id;});
+  serializeTplImgs(tplImgsSerialized=>{
+    const payload={shapes:shapes,tplImgsSerialized,options,uid:Math.max(uid,maxId+1)};
+    const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='shape-designer-save.json';a.click();URL.revokeObjectURL(a.href);
+  });
+}
+
+function applyImportedData(data){
+  if(!data||typeof data!=='object')return false;
+  try{
+    if(data.options){applyOptionsToDOM(data.options);}
+    if(Array.isArray(data.shapes)){shapes=data.shapes;selId=null;}
+    if(data.uid!=null)uid=Math.max(data.uid,1);
+    const list=Array.isArray(data.tplImgsSerialized)?data.tplImgsSerialized:[];
+    tplImgs=[];selImgI=-1;
+    if(list.length===0){updateProps();updateLayers();render();updateCode();updateImgList();$('cmLbl').textContent=colorMode.toUpperCase()+' '+angleMode.toUpperCase();syncCP();return true;}
+    let loaded=0;
+    list.forEach(item=>{
+      const rec={x:item.x,y:item.y,w:item.w,h:item.h,opacity:item.opacity!=null?item.opacity:0.4,visible:item.visible!==false,name:item.name||'img',loaded:false};
+      if(item.dataUrl){
+        const img=new Image();
+        img.onload=()=>{rec.img=img;rec.loaded=true;tplImgs.push(rec);loaded++;if(loaded===list.length){updateProps();updateLayers();render();updateCode();updateImgList();$('cmLbl').textContent=colorMode.toUpperCase()+' '+angleMode.toUpperCase();syncCP();}};
+        img.onerror=()=>{rec.img=null;rec.loaded=false;tplImgs.push(rec);loaded++;if(loaded===list.length){updateProps();updateLayers();render();updateCode();updateImgList();$('cmLbl').textContent=colorMode.toUpperCase()+' '+angleMode.toUpperCase();syncCP();}};
+        img.src=item.dataUrl;
+      }else{rec.img=null;rec.loaded=false;tplImgs.push(rec);loaded++;if(loaded===list.length){updateProps();updateLayers();render();updateCode();updateImgList();$('cmLbl').textContent=colorMode.toUpperCase()+' '+angleMode.toUpperCase();syncCP();}}
+    });
+    return true;
+  }catch(e){return false;}
+}
+
+function importSaveJSON(file){
+  if(!file)return;
+  const fr=new FileReader();
+  fr.onload=()=>{
+    try{
+      const data=JSON.parse(fr.result);
+      if(applyImportedData(data)){saveStateToStorage();}
+      else alert('Invalid save file.');
+    }catch(e){alert('Could not parse file: '+e.message);}
+  };
+  fr.readAsText(file);
+}
+
+(function(){
+  const saveIn=document.getElementById('saveIn');
+  if(saveIn)saveIn.addEventListener('change',function(){const f=this.files[0];if(f)importSaveJSON(f);this.value='';});
+})();
 
 function getPaddedBB(s,pad){const b=getBB(s);return{x:b.x-pad,y:b.y-pad,w:b.w+2*pad,h:b.h+2*pad};}
 
