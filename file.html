@@ -136,6 +136,49 @@ canvas#cv{display:block;border-radius:2px;image-rendering:-webkit-optimize-contr
 #textEditOverlay textarea{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:auto;margin:0;padding:0;border:none;background:transparent;color:transparent;caret-color:auto;resize:none;outline:none;box-sizing:border-box;overflow:hidden;user-select:text;-webkit-user-select:text;-moz-user-select:text}
 #textEditOverlay textarea::selection,#textEditOverlay textarea::-moz-selection{background:#7c3aed;color:#fff;-webkit-text-fill-color:#fff}
 ::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}::-webkit-scrollbar-thumb:hover{background:#3a3a60}
+
+/* ARTBOARD SYSTEM */
+.abbar{display:flex;align-items:center;gap:4px;padding:4px 8px;background:var(--bg3);border-bottom:1px solid var(--border);flex-shrink:0;z-index:50;min-height:36px;overflow-x:hidden}
+.abtabs{display:flex;align-items:center;gap:3px;overflow-x:auto;flex:1;min-width:0;padding-bottom:2px}
+.abtab{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;background:var(--bg4);border:1px solid var(--border);border-radius:5px 5px 0 0;cursor:pointer;font-size:10px;color:#888;white-space:nowrap;transition:all .12s;user-select:none;flex-shrink:0}
+.abtab.abt-act{background:var(--accent);border-color:var(--accent2);color:#fff}
+.abtab:hover:not(.abt-act){background:var(--bg3);color:#ccc}
+.abtab-close{border:none;background:none;color:rgba(255,255,255,.4);cursor:pointer;font-size:11px;padding:0 1px;line-height:1;transition:color .1s}
+.abtab-close:hover{color:#fff}
+.ab-addbtn{padding:2px 9px;border:1px dashed #444;border-radius:5px;background:transparent;color:#666;cursor:pointer;font-size:14px;transition:all .12s;flex-shrink:0}
+.ab-addbtn:hover{border-color:var(--accent);color:var(--accent)}
+.ab-modebar{display:flex;align-items:center;gap:3px;margin-left:auto;flex-shrink:0}
+.ab-mbtn{padding:3px 8px;border:1px solid var(--border);border-radius:4px;background:var(--bg4);color:#666;font-size:9px;cursor:pointer;font-weight:600;transition:all .12s}
+.ab-mbtn.abm-on{background:var(--accent);border-color:var(--accent2);color:#fff}
+.ab-mbtn:hover:not(.abm-on){border-color:#555;color:#aaa}
+/* SPLIT */
+.ab-split-wrap{flex:1;display:none;flex-direction:row;overflow-x:auto;overflow-y:hidden;min-height:0}
+.ab-split-pane{display:flex;flex-direction:column;flex-shrink:0;position:relative;min-width:200px;overflow:hidden}
+.ab-split-pane.absp-act{outline:2px solid var(--accent);outline-offset:-2px;z-index:1}
+.ab-split-label{font-size:9px;color:#666;padding:2px 6px;background:var(--bg3);border-bottom:1px solid var(--border);cursor:pointer;flex-shrink:0;display:flex;align-items:center;gap:4px;user-select:none}
+.ab-split-label:hover{color:#ccc}
+.ab-split-label-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ab-split-cwrap{flex:1;overflow:hidden;position:relative}
+.ab-split-zoom{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);display:flex;gap:2px;z-index:20;background:rgba(10,10,20,.85);border-radius:4px;padding:2px 5px;border:1px solid #2a2a4a;pointer-events:auto}
+.ab-split-zoom button{border:none;background:none;color:#aaa;font-size:9px;cursor:pointer;padding:1px 4px}.ab-split-zoom button:hover{color:#fff}
+.ab-split-divider{width:6px;flex-shrink:0;background:var(--bg3);cursor:ew-resize;border-left:1px solid var(--border);border-right:1px solid var(--border);transition:background .12s}
+.ab-split-divider:hover,.ab-split-divider.absd-on{background:var(--accent)}
+/* BROWSER */
+.ab-browser-wrap{flex:1;display:none;position:relative;overflow:hidden;background:#07070f}
+.ab-browser-stage{position:absolute;transform-origin:0 0;will-change:transform}
+.ab-browser-ab{position:absolute;border:1px solid var(--border);border-radius:4px;box-shadow:0 4px 20px rgba(0,0,0,.4);background:var(--bg2);overflow:hidden}
+.ab-browser-ab.abb-act{border-color:var(--accent);box-shadow:0 4px 20px rgba(124,58,237,.3)}
+.ab-browser-hdr{padding:3px 8px;background:var(--bg3);border-bottom:1px solid var(--border);cursor:grab;display:flex;align-items:center;gap:6px;user-select:none}
+.ab-browser-hdr:active{cursor:grabbing}
+.ab-browser-hdr span{font-size:10px;color:#aaa;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ab-browser-hdr button{border:none;background:none;color:#555;cursor:pointer;font-size:10px;padding:0 2px;transition:color .1s}
+.ab-browser-hdr button:hover{color:#fff}
+.ab-browser-canvas-wrap{position:relative;overflow:hidden}
+.ab-browser-zoombar{position:absolute;bottom:8px;right:8px;display:flex;gap:3px;z-index:10}
+.ab-browser-zoombar button{padding:2px 7px;border:1px solid var(--border);border-radius:4px;background:var(--bg4);color:#aaa;font-size:10px;cursor:pointer;transition:all .12s}
+.ab-browser-zoombar button:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+/* cwrap inside split/browser modes */
+.ab-split-cwrap .cwrap,.ab-browser-canvas-wrap .cwrap{display:flex!important;flex:1;width:100%;height:100%;position:relative}
 </style>
 </head>
 <body>
@@ -212,6 +255,17 @@ canvas#cv{display:block;border-radius:2px;image-rendering:-webkit-optimize-contr
  </div>
 </div>
 
+<div class="abbar" id="abbar">
+  <div class="abtabs" id="abtabs"></div>
+  <button class="ab-addbtn" id="abAddBtn" title="Add new artboard">+</button>
+  <div class="ab-modebar">
+    <button class="ab-mbtn abm-on" data-abm="single" title="Single artboard">⬜ Single</button>
+    <button class="ab-mbtn" data-abm="tab" title="Tab mode — switch between artboards">⊟ Tab</button>
+    <button class="ab-mbtn" data-abm="split" title="Split mode — all artboards side by side">⊞ Split</button>
+    <button class="ab-mbtn" data-abm="browser" title="Browser mode — pan/zoom workspace">⊠ Browse</button>
+  </div>
+</div>
+
 <div class="main">
  <div class="cwrap" id="cwrap">
   <div class="hud hud-left hud-zoom" id="zoomHud" title="Pinch/Ctrl+scroll on workspace to zoom. Click 100% to reset.">Zoom:
@@ -228,6 +282,16 @@ canvas#cv{display:block;border-radius:2px;image-rendering:-webkit-optimize-contr
    </div>
   </div>
  </div>
+  <div class="ab-split-wrap" id="abSplitWrap"></div>
+  <div class="ab-browser-wrap" id="abBrowserWrap">
+    <div class="ab-browser-stage" id="abBrowserStage"></div>
+    <div class="ab-browser-zoombar">
+      <button id="abbZoomOut" title="Zoom out">−</button>
+      <button id="abbZoomIn" title="Zoom in">+</button>
+      <button id="abbZoomFit" title="Fit all artboards">Fit</button>
+      <button id="abbZoom100" title="Reset to 100%">100%</button>
+    </div>
+  </div>
  <div class="sidebar">
   <div class="pnl" style="max-height:46%;overflow-y:auto">
    <h3 title="View and edit selected shape properties">Properties</h3>
@@ -1728,7 +1792,685 @@ function hlJS(c){return c.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/
 $('copyBtn').addEventListener('click',()=>{navigator.clipboard.writeText(rawCode).then(()=>{const b=$('copyBtn');b.textContent='✅ Done';b.classList.add('ok');setTimeout(()=>{b.textContent='📋 Copy';b.classList.remove('ok');},1200);});});
 $('downloadBtn').addEventListener('click',()=>{const blob=new Blob([rawCode],{type:'application/javascript'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='sketch.js';a.click();URL.revokeObjectURL(a.href);});
 
+// ======== ARTBOARD SYSTEM ========
+let _artboards = [];        // array of artboard objects
+let _activeABId = 0;        // id of currently active artboard
+let _abIdCnt = 0;           // counter for generating artboard IDs
+let _abMode = 'single';     // 'single' | 'tab' | 'split' | 'browser'
+
+// Split mode state
+let _splitDivDrag = null;   // {idx, startX, widths:[]}
+let _splitPaneWidths = [];  // current widths in px
+
+// Browser mode state
+let _abbPan = { x: 60, y: 60, zoom: 1 };
+let _abbDragAB = null;      // {id, startX, startY, origBx, origBy}
+let _abbPanning = false;
+let _abbPanStart = null;    // {x, y, origX, origY}
+
+// DOM refs
+const _abCwrap = document.getElementById('cwrap');
+let _abCwrapOrigParent = null;
+let _abCwrapOrigNextSib = null;
+
+// ---- artboard helpers ----
+function _abGet(id) { return _artboards.find(a => a.id === (id != null ? id : _activeABId)); }
+
+function _abSave() {
+  const ab = _abGet(_activeABId);
+  if (!ab) return;
+  ab.shapes = shapes;
+  ab.tplImgs = tplImgs;
+  ab.uid = uid;
+  ab.CW = CW; ab.CH = CH; ab.bgColor = bgColor;
+  ab.zoom = zoom; ab.panX = panX; ab.panY = panY;
+}
+
+function _abLoad(ab) {
+  if (!ab) return;
+  shapes = ab.shapes || [];
+  tplImgs = ab.tplImgs || [];
+  uid = ab.uid != null ? ab.uid : uid;
+  CW = ab.CW || 800; CH = ab.CH || 500; bgColor = ab.bgColor || '#f0f0f0';
+  zoom = ab.zoom != null ? ab.zoom : 1;
+  panX = ab.panX != null ? ab.panX : 0;
+  panY = ab.panY != null ? ab.panY : 0;
+  if (cv) { cv.width = CW; cv.height = CH; }
+  selId = null; selImgI = -1; mode = 'idle';
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+  set('cW', CW); set('cH', CH); set('bgC', bgColor);
+  applyZoomPan();
+}
+
+function _abSwitch(id) {
+  if (id === _activeABId) return;
+  _abSave();
+  _activeABId = id;
+  const ab = _abGet(id);
+  _abLoad(ab);
+  render(); updateCode(); updateLayers(); updateProps(); updateImgList();
+  _abRenderTabs();
+  if (_abMode === 'split') _abSyncSplitActive();
+  if (_abMode === 'browser') _abbSyncActive();
+  scheduleSaveState();
+}
+
+function _abAdd() {
+  _abSave();
+  const id = ++_abIdCnt;
+  const ab = {
+    id, name: 'Artboard ' + id,
+    shapes: [], tplImgs: [], uid: uid,
+    CW: CW, CH: CH, bgColor: bgColor,
+    zoom: 1, panX: 0, panY: 0,
+    bx: 80 + (_artboards.length) * (CW + 60), by: 80
+  };
+  _artboards.push(ab);
+  _activeABId = id;
+  _abLoad(ab);
+  render(); updateCode(); updateLayers(); updateProps(); updateImgList();
+  _abRenderTabs();
+  if (_abMode === 'split') _abBuildSplit();
+  else if (_abMode === 'browser') _abbBuild();
+  scheduleSaveState();
+}
+
+function _abRemove(id) {
+  if (_artboards.length <= 1) { alert('Cannot remove the last artboard.'); return; }
+  const ab = _abGet(id);
+  if (ab && ab.shapes && ab.shapes.length > 0) {
+    if (!confirm('Remove artboard "' + ab.name + '"? This will delete all its shapes.')) return;
+  }
+  const idx = _artboards.findIndex(a => a.id === id);
+  if (idx === -1) return;
+  _artboards.splice(idx, 1);
+  if (_activeABId === id) {
+    _activeABId = _artboards[Math.max(0, idx - 1)].id;
+    _abLoad(_abGet(_activeABId));
+    render(); updateCode(); updateLayers(); updateProps(); updateImgList();
+  }
+  _abRenderTabs();
+  if (_abMode === 'split') _abBuildSplit();
+  else if (_abMode === 'browser') _abbBuild();
+  scheduleSaveState();
+}
+
+function _abRename(id) {
+  const ab = _abGet(id);
+  if (!ab) return;
+  const n = prompt('Rename artboard:', ab.name);
+  if (n !== null && n.trim()) {
+    ab.name = n.trim();
+    _abRenderTabs();
+    if (_abMode === 'split') _abBuildSplit();
+    else if (_abMode === 'browser') _abbBuild();
+  }
+}
+
+// ---- mode switching ----
+function _abSetMode(mode) {
+  if (_abMode === mode) return;
+  _abSave();
+  // Return cwrap to original position if it was moved
+  _abRestoreCwrap();
+  _abMode = mode;
+  document.querySelectorAll('.ab-mbtn').forEach(b => b.classList.toggle('abm-on', b.dataset.abm === mode));
+  const splitWrap = document.getElementById('abSplitWrap');
+  const browserWrap = document.getElementById('abBrowserWrap');
+  _abCwrap.style.display = '';
+  if (splitWrap) splitWrap.style.display = 'none';
+  if (browserWrap) browserWrap.style.display = 'none';
+  _abRenderTabs();
+  if (mode === 'single' || mode === 'tab') {
+    _abLoad(_abGet(_activeABId));
+    render(); updateCode();
+  } else if (mode === 'split') {
+    _abCwrap.style.display = 'none';
+    if (splitWrap) { splitWrap.style.display = 'flex'; _abBuildSplit(); }
+  } else if (mode === 'browser') {
+    _abCwrap.style.display = 'none';
+    if (browserWrap) { browserWrap.style.display = 'flex'; _abbBuild(); }
+  }
+  scheduleSaveState();
+}
+
+// ---- tab rendering ----
+function _abRenderTabs() {
+  const container = document.getElementById('abtabs');
+  if (!container) return;
+  container.innerHTML = '';
+  _artboards.forEach(ab => {
+    const tab = document.createElement('div');
+    tab.className = 'abtab' + (ab.id === _activeABId ? ' abt-act' : '');
+    tab.title = 'Double-click to rename';
+    const lbl = document.createElement('span');
+    lbl.textContent = ab.name;
+    lbl.addEventListener('dblclick', e => { e.stopPropagation(); _abRename(ab.id); });
+    tab.appendChild(lbl);
+    tab.addEventListener('click', e => {
+      if (!e.target.classList.contains('abtab-close')) {
+        if (_abMode !== 'browser') _abSwitch(ab.id);
+        else { _abSave(); _activeABId = ab.id; _abLoad(_abGet(ab.id)); _abbSyncActive(); _abRenderTabs(); render(); updateCode(); updateLayers(); updateProps(); }
+      }
+    });
+    if (_artboards.length > 1) {
+      const cls = document.createElement('button');
+      cls.className = 'abtab-close';
+      cls.textContent = '×';
+      cls.title = 'Remove artboard';
+      cls.addEventListener('click', e => { e.stopPropagation(); _abRemove(ab.id); });
+      tab.appendChild(cls);
+    }
+    container.appendChild(tab);
+  });
+}
+
+// ---- preview rendering (renders ab to a target canvas) ----
+function _abRenderPreview(ab, targetCanvas) {
+  if (!ab || !targetCanvas) return;
+  const cw = ab.CW || 800, ch = ab.CH || 500;
+  // save all globals that render() uses
+  const sv = {
+    shapes, tplImgs, CW, CH, bgColor, zoom, panX, panY,
+    selId, hovShapeId, hovPt, snapGuides, mode: mode,
+    textEditShapeId, penPts, linePenPts, pxHov
+  };
+  shapes = ab.shapes || [];
+  tplImgs = ab.tplImgs || [];
+  CW = cw; CH = ch; bgColor = ab.bgColor || '#f0f0f0';
+  zoom = 1; panX = 0; panY = 0;
+  selId = null; hovShapeId = null; hovPt = null;
+  snapGuides = { v: [], h: [] };
+  const prevMode = mode; mode = 'idle';
+  textEditShapeId = null; penPts = []; linePenPts = []; pxHov = null;
+  cv.width = cw; cv.height = ch;
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.clearRect(0,0,cw,ch);
+  ctx.fillStyle = bgColor; ctx.fillRect(0,0,cw,ch);
+  if (showGrid) {
+    ctx.save(); ctx.strokeStyle='rgba(0,0,0,'+(0.5*gridOpacity/100)+')'; ctx.lineWidth=1;
+    for(let x=0;x<=cw;x+=gridSz){ctx.beginPath();ctx.moveTo(x+.5,0);ctx.lineTo(x+.5,ch);ctx.stroke();}
+    for(let y=0;y<=ch;y+=gridSz){ctx.beginPath();ctx.moveTo(0,y+.5);ctx.lineTo(cw,y+.5);ctx.stroke();}
+    ctx.restore();
+  }
+  tplImgs.forEach(im => { if(!im.visible||!im.loaded)return; ctx.save();ctx.globalAlpha=im.opacity;ctx.drawImage(im.img,im.x,im.y,im.w,im.h);ctx.restore(); });
+  shapes.forEach(s => drawS(s));
+  targetCanvas.width = cw; targetCanvas.height = ch;
+  targetCanvas.getContext('2d').drawImage(cv, 0, 0);
+  // restore globals
+  shapes = sv.shapes; tplImgs = sv.tplImgs;
+  CW = sv.CW; CH = sv.CH; bgColor = sv.bgColor;
+  zoom = sv.zoom; panX = sv.panX; panY = sv.panY;
+  selId = sv.selId; hovShapeId = sv.hovShapeId; hovPt = sv.hovPt;
+  snapGuides = sv.snapGuides; mode = sv.mode;
+  textEditShapeId = sv.textEditShapeId; penPts = sv.penPts; linePenPts = sv.linePenPts; pxHov = sv.pxHov;
+  cv.width = sv.CW; cv.height = sv.CH;
+  ctx.setTransform(1,0,0,1,0,0);
+  // Re-render active artboard after restoration
+  render();
+}
+
+// ---- cwrap helpers (move it in/out of split/browser containers) ----
+function _abSaveCwrapPos() {
+  if (!_abCwrapOrigParent) {
+    _abCwrapOrigParent = _abCwrap.parentNode;
+    _abCwrapOrigNextSib = _abCwrap.nextSibling;
+  }
+}
+function _abRestoreCwrap() {
+  if (_abCwrapOrigParent && _abCwrap.parentNode !== _abCwrapOrigParent) {
+    if (_abCwrapOrigNextSib && _abCwrapOrigNextSib.parentNode === _abCwrapOrigParent) {
+      _abCwrapOrigParent.insertBefore(_abCwrap, _abCwrapOrigNextSib);
+    } else {
+      _abCwrapOrigParent.appendChild(_abCwrap);
+    }
+  }
+  _abCwrap.style.flex = '';
+  _abCwrap.style.width = '';
+  _abCwrap.style.height = '';
+  _abCwrap.style.display = '';
+}
+function _abPlaceCwrapIn(container) {
+  _abSaveCwrapPos();
+  container.appendChild(_abCwrap);
+  _abCwrap.style.flex = '1';
+  _abCwrap.style.width = '100%';
+  _abCwrap.style.height = '100%';
+  _abCwrap.style.display = 'flex';
+}
+
+// ---- SPLIT MODE ----
+function _abBuildSplit() {
+  const wrap = document.getElementById('abSplitWrap');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  _splitPaneWidths = _artboards.map(() => 400);
+  _artboards.forEach((ab, i) => {
+    if (i > 0) {
+      const div = document.createElement('div');
+      div.className = 'ab-split-divider';
+      div.dataset.divIdx = i - 1;
+      div.addEventListener('mousedown', _abSplitDivStart);
+      wrap.appendChild(div);
+    }
+    const pane = document.createElement('div');
+    pane.className = 'ab-split-pane' + (ab.id === _activeABId ? ' absp-act' : '');
+    pane.id = 'absp-' + ab.id;
+    pane.style.width = _splitPaneWidths[i] + 'px';
+    const label = document.createElement('div');
+    label.className = 'ab-split-label';
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'ab-split-label-name';
+    nameSpan.textContent = ab.name;
+    nameSpan.addEventListener('dblclick', () => _abRename(ab.id));
+    label.appendChild(nameSpan);
+    // Zoom controls for each pane
+    const zoomBar = document.createElement('div');
+    zoomBar.className = 'ab-split-zoom';
+    ['−','+',' Fit','100%'].forEach((lbl, zi) => {
+      const btn = document.createElement('button');
+      btn.textContent = lbl.trim();
+      btn.title = ['Zoom out','Zoom in','Fit canvas','Reset zoom'][zi];
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        if (ab.id !== _activeABId) { _abSwitch(ab.id); return; }
+        if (zi === 0) zoomStep(-1);
+        else if (zi === 1) zoomStep(1);
+        else if (zi === 2) zoomFit();
+        else { zoom=1;panX=0;panY=0;clampPan();render(); }
+      });
+      zoomBar.appendChild(btn);
+    });
+    pane.appendChild(label);
+    const cwrapDiv = document.createElement('div');
+    cwrapDiv.className = 'ab-split-cwrap';
+    cwrapDiv.style.position = 'relative';
+    cwrapDiv.style.flex = '1';
+    cwrapDiv.style.overflow = 'hidden';
+    if (ab.id === _activeABId) {
+      _abPlaceCwrapIn(cwrapDiv);
+    } else {
+      const previewCanvas = document.createElement('canvas');
+      previewCanvas.style.cssText = 'display:block;max-width:100%;max-height:100%;object-fit:contain;cursor:pointer';
+      cwrapDiv.style.display = 'flex'; cwrapDiv.style.alignItems = 'center'; cwrapDiv.style.justifyContent = 'center'; cwrapDiv.style.background = 'var(--bg)';
+      cwrapDiv.appendChild(previewCanvas);
+      cwrapDiv.addEventListener('click', () => _abSwitch(ab.id));
+      // Render preview after DOM is ready
+      setTimeout(() => _abRenderPreview(ab, previewCanvas), 0);
+    }
+    pane.appendChild(cwrapDiv);
+    pane.appendChild(zoomBar);
+    wrap.appendChild(pane);
+  });
+}
+
+function _abSyncSplitActive() {
+  document.querySelectorAll('.ab-split-pane').forEach(p => p.classList.remove('absp-act'));
+  const activePane = document.getElementById('absp-' + _activeABId);
+  if (!activePane) { _abBuildSplit(); return; }
+  activePane.classList.add('absp-act');
+  const cwrapDiv = activePane.querySelector('.ab-split-cwrap');
+  if (cwrapDiv && !cwrapDiv.contains(_abCwrap)) {
+    // Move cwrap here
+    cwrapDiv.innerHTML = '';
+    _abPlaceCwrapIn(cwrapDiv);
+    cwrapDiv.style.display = ''; cwrapDiv.style.alignItems = ''; cwrapDiv.style.justifyContent = '';
+  }
+  // Update previews for other panes
+  _artboards.forEach(ab => {
+    if (ab.id === _activeABId) return;
+    const pane = document.getElementById('absp-' + ab.id);
+    if (!pane) return;
+    const cwrapDivOther = pane.querySelector('.ab-split-cwrap');
+    if (!cwrapDivOther) return;
+    // Make sure cwrap is not in this pane
+    if (cwrapDivOther.contains(_abCwrap)) {
+      cwrapDivOther.innerHTML = '';
+    }
+    let previewCanvas = cwrapDivOther.querySelector('canvas');
+    if (!previewCanvas) {
+      previewCanvas = document.createElement('canvas');
+      previewCanvas.style.cssText = 'display:block;max-width:100%;max-height:100%;object-fit:contain;cursor:pointer';
+      cwrapDivOther.style.display = 'flex'; cwrapDivOther.style.alignItems = 'center'; cwrapDivOther.style.justifyContent = 'center'; cwrapDivOther.style.background = 'var(--bg)';
+      cwrapDivOther.appendChild(previewCanvas);
+      cwrapDivOther.addEventListener('click', () => _abSwitch(ab.id));
+    }
+    setTimeout(() => _abRenderPreview(ab, previewCanvas), 10);
+  });
+}
+
+function _abSplitDivStart(e) {
+  e.preventDefault();
+  const idx = parseInt(e.currentTarget.dataset.divIdx);
+  const panes = document.querySelectorAll('.ab-split-pane');
+  const widths = Array.from(panes).map(p => p.getBoundingClientRect().width);
+  _splitDivDrag = { idx, startX: e.clientX, widths: widths.slice() };
+  e.currentTarget.classList.add('absd-on');
+  const el = e.currentTarget;
+  function onMove(ev) {
+    if (!_splitDivDrag) return;
+    const dx = ev.clientX - _splitDivDrag.startX;
+    const lw = Math.max(180, _splitDivDrag.widths[_splitDivDrag.idx] + dx);
+    const rw = Math.max(180, _splitDivDrag.widths[_splitDivDrag.idx + 1] - dx);
+    const panes2 = document.querySelectorAll('.ab-split-pane');
+    if (panes2[_splitDivDrag.idx]) panes2[_splitDivDrag.idx].style.width = lw + 'px';
+    if (panes2[_splitDivDrag.idx + 1]) panes2[_splitDivDrag.idx + 1].style.width = rw + 'px';
+    clampPan(); render();
+  }
+  function onUp() {
+    _splitDivDrag = null;
+    el.classList.remove('absd-on');
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+  }
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+}
+
+// ---- BROWSER MODE ----
+function _abbBuild() {
+  const stage = document.getElementById('abBrowserStage');
+  if (!stage) return;
+  stage.innerHTML = '';
+  _abbApplyTransform();
+  _artboards.forEach(ab => {
+    const el = document.createElement('div');
+    el.className = 'ab-browser-ab' + (ab.id === _activeABId ? ' abb-act' : '');
+    el.id = 'abbb-' + ab.id;
+    el.style.left = (ab.bx || 80) + 'px';
+    el.style.top = (ab.by || 80) + 'px';
+    el.style.width = (ab.CW || 800) + 'px';
+    // Header
+    const hdr = document.createElement('div');
+    hdr.className = 'ab-browser-hdr';
+    const nm = document.createElement('span');
+    nm.textContent = ab.name;
+    nm.addEventListener('dblclick', e => { e.stopPropagation(); _abRename(ab.id); });
+    hdr.appendChild(nm);
+    const rnBtn = document.createElement('button');
+    rnBtn.textContent = '✎'; rnBtn.title = 'Rename';
+    rnBtn.addEventListener('click', e => { e.stopPropagation(); _abRename(ab.id); });
+    hdr.appendChild(rnBtn);
+    if (_artboards.length > 1) {
+      const rmBtn = document.createElement('button');
+      rmBtn.textContent = '×'; rmBtn.title = 'Remove artboard';
+      rmBtn.style.color = '#a33';
+      rmBtn.addEventListener('click', e => { e.stopPropagation(); _abRemove(ab.id); });
+      hdr.appendChild(rmBtn);
+    }
+    // Drag artboard by header
+    hdr.addEventListener('mousedown', e => {
+      if (e.target.tagName === 'BUTTON') return;
+      e.stopPropagation();
+      e.preventDefault();
+      const startX = e.clientX, startY = e.clientY;
+      const origBx = ab.bx || 0, origBy = ab.by || 0;
+      _abbDragAB = { id: ab.id, startX, startY, origBx, origBy };
+      function onMove(ev) {
+        if (!_abbDragAB) return;
+        const dx = (ev.clientX - startX) / _abbPan.zoom;
+        const dy = (ev.clientY - startY) / _abbPan.zoom;
+        ab.bx = origBx + dx; ab.by = origBy + dy;
+        el.style.left = ab.bx + 'px'; el.style.top = ab.by + 'px';
+      }
+      function onUp() {
+        _abbDragAB = null;
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        scheduleSaveState();
+      }
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    });
+    // Click header to activate artboard
+    hdr.addEventListener('click', e => {
+      if (e.target.tagName === 'BUTTON') return;
+      if (ab.id !== _activeABId) {
+        _abSave(); _activeABId = ab.id;
+        _abLoad(_abGet(ab.id)); render(); updateCode(); updateLayers(); updateProps(); updateImgList();
+        _abRenderTabs(); _abbSyncActive(); scheduleSaveState();
+      }
+    });
+    el.appendChild(hdr);
+    // Canvas area
+    const carea = document.createElement('div');
+    carea.className = 'ab-browser-canvas-wrap';
+    carea.style.width = (ab.CW || 800) + 'px';
+    carea.style.height = (ab.CH || 500) + 'px';
+    if (ab.id === _activeABId) {
+      _abPlaceCwrapIn(carea);
+    } else {
+      const previewCanvas = document.createElement('canvas');
+      previewCanvas.style.cssText = 'display:block;cursor:pointer';
+      carea.appendChild(previewCanvas);
+      carea.addEventListener('click', () => {
+        _abSave(); _activeABId = ab.id;
+        _abLoad(_abGet(ab.id)); render(); updateCode(); updateLayers(); updateProps(); updateImgList();
+        _abRenderTabs(); _abbSyncActive(); scheduleSaveState();
+      });
+      setTimeout(() => _abRenderPreview(ab, previewCanvas), 0);
+    }
+    el.appendChild(carea);
+    stage.appendChild(el);
+  });
+}
+
+function _abbSyncActive() {
+  document.querySelectorAll('.ab-browser-ab').forEach(el => el.classList.remove('abb-act'));
+  const activeEl = document.getElementById('abbb-' + _activeABId);
+  if (!activeEl) { _abbBuild(); return; }
+  activeEl.classList.add('abb-act');
+  const carea = activeEl.querySelector('.ab-browser-canvas-wrap');
+  if (carea && !carea.contains(_abCwrap)) {
+    carea.innerHTML = '';
+    _abPlaceCwrapIn(carea);
+  }
+  // Update previews for others
+  _artboards.forEach(ab => {
+    if (ab.id === _activeABId) return;
+    const el = document.getElementById('abbb-' + ab.id);
+    if (!el) return;
+    const ca = el.querySelector('.ab-browser-canvas-wrap');
+    if (!ca) return;
+    if (ca.contains(_abCwrap)) { ca.innerHTML = ''; }
+    let pc = ca.querySelector('canvas');
+    if (!pc) {
+      pc = document.createElement('canvas');
+      pc.style.cssText = 'display:block;cursor:pointer';
+      ca.appendChild(pc);
+      ca.addEventListener('click', () => {
+        _abSave(); _activeABId = ab.id;
+        _abLoad(_abGet(ab.id)); render(); updateCode(); updateLayers(); updateProps(); updateImgList();
+        _abRenderTabs(); _abbSyncActive(); scheduleSaveState();
+      });
+    }
+    setTimeout(() => _abRenderPreview(ab, pc), 10);
+  });
+}
+
+function _abbApplyTransform() {
+  const stage = document.getElementById('abBrowserStage');
+  if (stage) stage.style.transform = `translate(${_abbPan.x}px, ${_abbPan.y}px) scale(${_abbPan.zoom})`;
+}
+
+// Browser panning and zooming
+(function() {
+  const bwrap = document.getElementById('abBrowserWrap');
+  if (!bwrap) return;
+  bwrap.addEventListener('mousedown', e => {
+    if (e.target !== bwrap && e.target !== document.getElementById('abBrowserStage')) {
+      // Check if clicking on empty space in stage
+      const stage = document.getElementById('abBrowserStage');
+      if (!stage || !e.target.closest('.ab-browser-ab')) {
+        // clicking empty stage area
+      } else return;
+    }
+    if (e.button !== 0 && e.button !== 1) return;
+    _abbPanning = true;
+    _abbPanStart = { x: e.clientX, y: e.clientY, origX: _abbPan.x, origY: _abbPan.y };
+    e.preventDefault();
+  });
+  bwrap.addEventListener('mousemove', e => {
+    if (!_abbPanning || !_abbPanStart) return;
+    _abbPan.x = _abbPanStart.origX + (e.clientX - _abbPanStart.x);
+    _abbPan.y = _abbPanStart.origY + (e.clientY - _abbPanStart.y);
+    _abbApplyTransform();
+  });
+  bwrap.addEventListener('mouseup', () => { _abbPanning = false; _abbPanStart = null; });
+  bwrap.addEventListener('mouseleave', () => { _abbPanning = false; _abbPanStart = null; });
+  bwrap.addEventListener('wheel', e => {
+    e.preventDefault();
+    const factor = e.deltaY < 0 ? 1.1 : (1/1.1);
+    const rect = bwrap.getBoundingClientRect();
+    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+    const newZoom = Math.max(0.1, Math.min(4, _abbPan.zoom * factor));
+    _abbPan.x = mx - (mx - _abbPan.x) * (newZoom / _abbPan.zoom);
+    _abbPan.y = my - (my - _abbPan.y) * (newZoom / _abbPan.zoom);
+    _abbPan.zoom = newZoom;
+    _abbApplyTransform();
+  }, { passive: false });
+  const abbZoomIn = document.getElementById('abbZoomIn');
+  const abbZoomOut = document.getElementById('abbZoomOut');
+  const abbZoomFit = document.getElementById('abbZoomFit');
+  const abbZoom100 = document.getElementById('abbZoom100');
+  if (abbZoomIn) abbZoomIn.addEventListener('click', () => { _abbPan.zoom = Math.min(4, _abbPan.zoom * 1.2); _abbApplyTransform(); });
+  if (abbZoomOut) abbZoomOut.addEventListener('click', () => { _abbPan.zoom = Math.max(0.1, _abbPan.zoom / 1.2); _abbApplyTransform(); });
+  if (abbZoom100) abbZoom100.addEventListener('click', () => { _abbPan.zoom = 1; _abbApplyTransform(); });
+  if (abbZoomFit) abbZoomFit.addEventListener('click', () => {
+    if (!_artboards.length) return;
+    const bwr = bwrap.getBoundingClientRect();
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    _artboards.forEach(ab => {
+      const bx = ab.bx||80, by = ab.by||80, cw = ab.CW||800, ch = ab.CH||500;
+      minX = Math.min(minX, bx); minY = Math.min(minY, by);
+      maxX = Math.max(maxX, bx + cw); maxY = Math.max(maxY, by + ch + 24);
+    });
+    const pad = 40;
+    const scaleX = (bwr.width - pad*2) / (maxX - minX);
+    const scaleY = (bwr.height - pad*2) / (maxY - minY);
+    _abbPan.zoom = Math.max(0.1, Math.min(4, Math.min(scaleX, scaleY)));
+    _abbPan.x = pad - minX * _abbPan.zoom;
+    _abbPan.y = pad - minY * _abbPan.zoom;
+    _abbApplyTransform();
+  });
+})();
+
+// ---- mode button event listeners ----
+document.querySelectorAll('.ab-mbtn').forEach(b => {
+  b.addEventListener('click', () => _abSetMode(b.dataset.abm));
+});
+document.getElementById('abAddBtn').addEventListener('click', () => _abAdd());
+
+// ---- update saveStateToStorage and loadStateFromStorage to handle artboards ----
+// Wrap the originals
+const _origSaveState = saveStateToStorage;
+saveStateToStorage = function() {
+  _abSave(); // save current editor state to active artboard
+  const options = getOptionsFromDOM();
+  let maxId = 0; shapes.forEach(s => { if(s.id > maxId) maxId = s.id; });
+  serializeTplImgs(tplImgsSerialized => {
+    // Also serialize all artboard tplImgs
+    const abData = _artboards.map(ab => ({
+      id: ab.id, name: ab.name,
+      shapes: ab.shapes || [],
+      uid: ab.uid,
+      CW: ab.CW, CH: ab.CH, bgColor: ab.bgColor,
+      zoom: ab.zoom, panX: ab.panX, panY: ab.panY,
+      bx: ab.bx, by: ab.by
+      // tplImgs are not serialized per artboard for simplicity (only active artboard's)
+    }));
+    try {
+      const payload = JSON.stringify({
+        shapes, tplImgsSerialized, options,
+        uid: Math.max(uid, maxId+1),
+        artboards: abData,
+        activeABId: _activeABId,
+        abIdCnt: _abIdCnt,
+        abMode: _abMode
+      });
+      localStorage.setItem(STORAGE_KEY, payload);
+    } catch(e) {}
+  });
+};
+// Override exportSaveJSON
+const _origExportSave = exportSaveJSON;
+exportSaveJSON = function() {
+  _abSave();
+  const options = getOptionsFromDOM();
+  let maxId = 0; shapes.forEach(s => { if(s.id > maxId) maxId = s.id; });
+  serializeTplImgs(tplImgsSerialized => {
+    const abData = _artboards.map(ab => ({
+      id: ab.id, name: ab.name,
+      shapes: ab.shapes || [],
+      uid: ab.uid,
+      CW: ab.CW, CH: ab.CH, bgColor: ab.bgColor,
+      zoom: ab.zoom, panX: ab.panX, panY: ab.panY,
+      bx: ab.bx, by: ab.by
+    }));
+    const payload = {
+      shapes, tplImgsSerialized, options,
+      uid: Math.max(uid, maxId+1),
+      artboards: abData,
+      activeABId: _activeABId,
+      abIdCnt: _abIdCnt
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {type: 'application/json'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = 'shape-designer-save.json'; a.click(); URL.revokeObjectURL(a.href);
+  });
+};
+
+// ---- init artboards after load ----
+function _abInit(data) {
+  if (data && Array.isArray(data.artboards) && data.artboards.length > 0) {
+    _artboards = data.artboards.map(ab => ({
+      id: ab.id || 1,
+      name: ab.name || 'Artboard 1',
+      shapes: ab.shapes || [],
+      tplImgs: ab.tplImgs || [],
+      uid: ab.uid || 1,
+      CW: ab.CW || 800, CH: ab.CH || 500,
+      bgColor: ab.bgColor || '#f0f0f0',
+      zoom: ab.zoom != null ? ab.zoom : 1,
+      panX: ab.panX || 0, panY: ab.panY || 0,
+      bx: ab.bx != null ? ab.bx : 80, by: ab.by != null ? ab.by : 80
+    }));
+    _abIdCnt = data.abIdCnt || Math.max(..._artboards.map(a => a.id));
+    _activeABId = data.activeABId || _artboards[0].id;
+    // Sync active artboard with current global state (already loaded by loadStateFromStorage)
+    const activeAB = _abGet(_activeABId);
+    if (activeAB) {
+      activeAB.shapes = shapes;
+      activeAB.tplImgs = tplImgs;
+      activeAB.uid = uid;
+      activeAB.CW = CW; activeAB.CH = CH; activeAB.bgColor = bgColor;
+    }
+  } else {
+    // First run or old format - create single artboard from current state
+    _abIdCnt = 1;
+    _artboards = [{
+      id: 1, name: 'Artboard 1',
+      shapes: shapes, tplImgs: tplImgs, uid: uid,
+      CW: CW, CH: CH, bgColor: bgColor,
+      zoom: zoom, panX: panX, panY: panY,
+      bx: 80, by: 80
+    }];
+    _activeABId = 1;
+  }
+  _abSaveCwrapPos(); // remember where cwrap lives originally
+  _abRenderTabs();
+}
+
 if(!loadStateFromStorage()){$('cmLbl').textContent='RGB DEG';syncCP();render();updateImgList();}
+(function(){
+  let savedData = null;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) savedData = JSON.parse(raw);
+  } catch(e) {}
+  _abInit(savedData);
+  $('cmLbl').textContent = colorMode.toUpperCase() + ' ' + angleMode.toUpperCase();
+})();
 </script>
 </body>
 </html>
