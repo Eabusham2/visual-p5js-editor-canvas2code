@@ -1,7 +1,7 @@
 # visual-p5js-editor-canvas2code
 made by Eabusham2 with Claude Opus 5, Claude Opus 4.6, Claude Sonnet 4.6, Cursor Composer 1.5, ChatGPT Codex, and Google Gemini Pro 3.1 High
 
-desc:Shape Designer → p5.js is a single self-contained HTML file: no build step, no dependencies, no server. Draw on the canvas and it writes the p5.js sketch that reproduces it, live.
+desc: Shape Designer → p5.js is a single self-contained HTML file: no build step, no dependencies, no server. Draw on the canvas and it writes the p5.js sketch that reproduces it, live.
 
 
 by Eabusham2
